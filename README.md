@@ -1,10 +1,10 @@
 # Boron Systematics
 Boron Systematics is a Matlab class to take any four of the following:  
-- pH (or $[\text{H}^{+}]$)  
+- pH (or [H]<sup>+</sup>])  
 - pKb (or Kb)  
-- $\alpha$ (or $\epsilon$)  
-- $\delta^{11}\text{B}_{sw}$  
-- $\delta^{11}\text{B}_{borate}$  
+- &alpha; (or &epsilon;)  
+- &delta;<sup>11</sup>B<sub>sw</sub>  
+- &delta;<sup>11</sup>B<sub>borate</sub>  
 
 and calculates the remaining parameter.
 
@@ -52,4 +52,4 @@ disp(data.d11B_sw.Value)   % Show the result
 ```
 
 ## Useful Information
-```Boron_pH``` assumes modern day values for pKb (8.6), $\epsilon$ (27.2), and $\delta^{11}\text{B}_{sw}$ (39.61). These can be overwritten if required.
+```Boron_pH``` assumes modern day values for pKb (8.6), &epsilon; (27.2), and &delta;<sup>11</sup>B<sub>sw</sub> (39.61). These can be overwritten if required.
