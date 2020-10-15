@@ -67,7 +67,7 @@ disp(data(2).d11B_4.value)
 disp(data(3).d11B_4.value)                  % Show the results
 ```
 
-To simplify assigning to an array of objects, ```Boron_pH``` inherits from the ```Collater``` class. This allows access to the ```assignToAll```, ```assignToEach``` and ```collate``` methods.
+To simplify assigning to an array of objects, ```Boron_pH``` inherits from the ```Collator``` class. This allows access to the ```assignToAll```, ```assignToEach``` and ```collate``` methods.
 
 ```assignToEach``` assigns different values to multiple objects in an array e.g.
 ```MATLAB
