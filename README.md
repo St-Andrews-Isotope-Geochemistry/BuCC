@@ -67,6 +67,51 @@ disp(data(2).d11B_4.value)
 disp(data(3).d11B_4.value)                  % Show the results
 ```
 
+To simplify assigning to an array of objects, ```Boron_pH``` inherits from the ```Collater``` class. This allows access to the ```assignToAll```, ```assignToEach``` and ```collate``` methods.
+
+```assignToEach``` assigns different values to multiple objects in an array e.g.
+```MATLAB
+data = [Boron_pH(),Boron_pH(),Boron_pH()];  % Instantiate an array of objects
+pH_array = [8.0,8.2,8.4];                   % Create an array of pHs
+
+data.assignToEach("pH",pH_array);           % Fill in either a pH or a d11B_4
+
+data.calculate();                           % Call the calculate method
+
+disp(data(1).d11B_4.value)
+disp(data(2).d11B_4.value)
+disp(data(3).d11B_4.value)                  % Show the results
+```
+
+```assignToAll``` assigns the same value to multiple objects in an array e.g.
+```MATLAB
+data = [Boron_pH(),Boron_pH(),Boron_pH()];  % Instantiate an  array of objects
+pH_array = [8.0,8.2,8.4];                   % Create an array of pHs
+
+data.assignToEach("pH",pH_array);           % Fill in either a pH or a d11B_4
+data.assignToAll("epsilon",29);             % Change the value for all objects in the array
+
+data.calculate();                           % Call the calculate method
+
+disp(data(1).d11B_4.value)
+disp(data(2).d11B_4.value)
+disp(data(3).d11B_4.value)                  % Show the results
+```
+
+```collate``` makes it easier to collect the data from multiple objects in an array e.g.
+```MATLAB
+data = [Boron_pH(),Boron_pH(),Boron_pH()];    % Instantiate an  array of objects
+pH_array = [8.0,8.2,8.4];                     % Create an array of pHs
+
+data.assignToEach("pH",pH_array);             % Fill in either a pH or a d11B_4
+data.assignToAll("epsilon",29);               % Change the value for all objects in the array
+
+data.calculate();                             % Call the calculate method
+
+disp(data.collate("d11B_4").collate("value")) % First collate an array of delta objects, then from those collate the array of values
+```
+
+
 
 ## Useful Information
 ```Boron_pH``` assumes modern day values for pKb (8.6), &epsilon; (27.2), and &delta;<sup>11</sup>B<sub>sw</sub> (39.61). These can be overwritten if required.
