@@ -22,13 +22,13 @@ classdef Boron_pH<handle&Collater&matlab.mixin.Copyable
     %   Contact - rdmw1@st-andrews.ac.uk
     %   Licensing - Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0), https://creativecommons.org/licenses/by-nc-sa/4.0/
     properties        
-        d11B_4 = delta("Boron",NaN);
-        d11B_sw = delta("Boron",39.61);
+        d11B_4 = delta.empty();
+        d11B_sw = delta.empty();
         
         epsilon = 27.2;
         
-        pKb = pX(8.6);        
-        pH = pX();
+        pKb = pX.empty();
+        pH = pX.empty();
          
 %         temperature = NaN;
 %         salinity = NaN;
@@ -47,8 +47,11 @@ classdef Boron_pH<handle&Collater&matlab.mixin.Copyable
     end
     methods
         % Constructor
-        function self = BpH(self)
-            
+        function self = Boron_pH(self)
+            self.d11B_4 = delta("Boron",NaN);
+            self.d11B_sw = delta("Boron",39.61);
+            self.pKb = pX(8.6);
+            self.pH = pX(NaN);
         end
         
         % Setters
