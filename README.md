@@ -29,7 +29,7 @@ Similarly, the process can be reversed:
 data = Boron_pH();      % Instantiate an object
 data.pH.pValue = 8.2;   % Fill in either a pH or a d11B_4
 data.calculate();       % Call the calculate method
-disp(data.d11B_4.Value) % Show the result
+disp(data.d11B_4.value) % Show the result
 ```
 
 Alternatively, any of the assumed values can be overwritten e.g.:
@@ -38,7 +38,7 @@ data = Boron_pH();       % Instantiate an object
 data.pH.pValue = 8.2;    % Fill in either a pH or a d11B_4
 data.d11B_sw.value = 35; % Overwrite assumed d11B_sw
 data.calculate();        % Call the calculate method
-disp(data.d11B_4.Value)  % Show the result
+disp(data.d11B_4.value)  % Show the result
 ```
 
 Or if one of the assumed values is unknown, overwrite with NaN e.g.:
@@ -48,7 +48,7 @@ data.pH.pValue = 8.2;     %
 data.d11B_4.Value = 20;   % Fill in both pH and d11B_4
 data.d11B_sw.value = NaN; % Overwrite assumed d11B_sw
 data.calculate();         % Call the calculate method
-disp(data.d11B_sw.Value)   % Show the result
+disp(data.d11B_sw.value)   % Show the result
 ```
 
 ## Useful Information
