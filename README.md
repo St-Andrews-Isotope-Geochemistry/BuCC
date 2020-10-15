@@ -51,5 +51,22 @@ data.calculate();         % Call the calculate method
 disp(data.d11B_sw.value)   % Show the result
 ```
 
+## Multiple Values
+If you're dealing with arrays of data rather than single values, then you can make arrays of ```Boron_pH``` objects.
+```MATLAB
+data = [Boron_pH(),Boron_pH(),Boron_pH()];  % Instantiate an  array of objects
+
+data(1).pH.pValue = 8.0;
+data(2).pH.pValue = 8.2;
+data(3).pH.pValue = 8.4;                    % Fill in either a pH or a d11B_4
+
+data.calculate();                           % Call the calculate method
+
+disp(data(1).d11B_4.value)
+disp(data(2).d11B_4.value)
+disp(data(3).d11B_4.value)                  % Show the results
+```
+
+
 ## Useful Information
 ```Boron_pH``` assumes modern day values for pKb (8.6), &epsilon; (27.2), and &delta;<sup>11</sup>B<sub>sw</sub> (39.61). These can be overwritten if required.
