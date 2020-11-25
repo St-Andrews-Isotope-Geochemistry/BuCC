@@ -1,0 +1,12 @@
+[submodule "Geochemistry_Helpers"]
+	path = Geochemistry_Helpers
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/Geochemistry_Helpers
+[submodule "CO2_Systematics"]
+	path = CO2_Systematics
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/CO2_Systematics
+[submodule "Boron_Systematics"]
+	path = Boron_Systematics
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/Boron_Systematics
+[submodule "Boron_Species_Calibration"]
+	path = Boron_Species_Calibration
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/Boron_Species_Calibration
