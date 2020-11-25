@@ -1,4 +1,4 @@
-classdef BoronSpeciesCalibration
+classdef BoronSpeciesCalibration < handle
     properties
         d11B_s = delta("B",NaN);
         d11B_4 = delta("B",NaN);
@@ -24,6 +24,10 @@ classdef BoronSpeciesCalibration
                 end
                 self.d11B_4.value = output;
             end
+        end
+        function assign(self,form,coefficients)
+            self.form = form;
+            self.coefficients = coefficients;
         end
     end
 end
