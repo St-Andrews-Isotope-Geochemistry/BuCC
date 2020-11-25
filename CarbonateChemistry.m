@@ -20,7 +20,7 @@ classdef CarbonateChemistry < handle
         calcium
         magnesium
         
-        equilibrium_coefficients = EquilibriumCoefficients()
+        equilibrium_coefficients
     end
     methods
         % Setters
@@ -47,6 +47,7 @@ classdef CarbonateChemistry < handle
         
         % Constructor
         function self = CarbonateChemistry()
+            self.equilibrium_coefficients = EquilibriumCoefficients();
         end
         
         function calculateBoronFromSalinity(self)
