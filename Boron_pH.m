@@ -118,10 +118,10 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
 
         % pH
         function self = calculate_pH_simple(self)
-            self.pH = self.pKb.pValue-log10(-((self.d11B_4.ratio-self.d11B_sw.ratio)./((self.alpha.*self.d11B_4.ratio)-self.d11B_sw.ratio)));
+            self.pH.pValue = self.pKb.pValue-log10(-((self.d11B_4.ratio-self.d11B_sw.ratio)./((self.alpha.*self.d11B_4.ratio)-self.d11B_sw.ratio)));
         end
         function self = calculate_pH(self)
-            self.pH = self.pKb.pValue-log10( (((self.alpha.*self.d11B_4.ratio)+1).*(self.d11B_4.ratio-self.d11B_sw.ratio))./((self.d11B_4.ratio+1).*(self.d11B_sw.ratio-(self.alpha.*self.d11B_4.ratio))) );
+            self.pH.pValue = self.pKb.pValue-log10( (((self.alpha.*self.d11B_4.ratio)+1).*(self.d11B_4.ratio-self.d11B_sw.ratio))./((self.d11B_4.ratio+1).*(self.d11B_sw.ratio-(self.alpha.*self.d11B_4.ratio))) );
         end
 
         % pKb
