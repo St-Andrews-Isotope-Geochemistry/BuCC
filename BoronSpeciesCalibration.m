@@ -16,7 +16,7 @@ classdef BoronSpeciesCalibration
                 self.coefficients = coefficients;
             end
         end
-        function output = translate(self)
+        function output = apply(self)
             if self.form=="polynomial" || self.form=="linear"
                 output = 0;
                 for index = 1:numel(self.coefficients)
