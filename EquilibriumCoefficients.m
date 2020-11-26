@@ -77,27 +77,34 @@ classdef EquilibriumCoefficients < handle
         end
         
         function calculate(self)
-            [k_values,~] = self.run_MyAMI("./MyAMI",self.temperature,self.salinity,self.calcium,self.magnesium);
-            
-            self.kw.value = k_values(1);
-            self.k1.value = k_values(2);
-            self.k2.value = k_values(3);
-            self.kc.value = k_values(4);
-            self.kb.value = k_values(5);
-            self.ka.value = k_values(6);
-            self.k0.value = k_values(7);
-            self.ks.value = k_values(8);
-            
-            self.kw.doPressureCorrection();
-            self.k1.doPressureCorrection();
-            self.k2.doPressureCorrection();
-            self.kc.doPressureCorrection();
-            self.kb.doPressureCorrection();
-            self.ka.doPressureCorrection();
-            self.k0.doPressureCorrection();
-            self.ks.doPressureCorrection();
-            
-            self.calculated = true;
+            MyAMI_search = what("MyAMI");
+            current_directory = pwd;
+            MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
+            if ~isempty(MyAMI_search)
+                [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium,self.magnesium);
+                
+                self.kw.value = k_values(1);
+                self.k1.value = k_values(2);
+                self.k2.value = k_values(3);
+                self.kc.value = k_values(4);
+                self.kb.value = k_values(5);
+                self.ka.value = k_values(6);
+                self.k0.value = k_values(7);
+                self.ks.value = k_values(8);
+                
+                self.kw.doPressureCorrection();
+                self.k1.doPressureCorrection();
+                self.k2.doPressureCorrection();
+                self.kc.doPressureCorrection();
+                self.kb.doPressureCorrection();
+                self.ka.doPressureCorrection();
+                self.k0.doPressureCorrection();
+                self.ks.doPressureCorrection();
+                
+                self.calculated = true;
+            else
+                error("Can't find MyAMI");
+            end
         end
     end
     methods (Static)        
