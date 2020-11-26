@@ -10,6 +10,7 @@ classdef d11B_CO2 < handle
             addpath("./Boron_Species_Calibration");
             addpath("./Boron_Systematics");
             addpath("./CO2_Systematics");
+%             addpath(genpath("./CO2_Systematics"));
             addpath("./Geochemistry_Helpers");
             
             self.species_calibration = BoronSpeciesCalibration();
@@ -23,7 +24,7 @@ classdef d11B_CO2 < handle
         end
         
         function calculate(self)
-            self.species_calibration.translate();
+            self.species_calibration.apply();
             self.carbonate_chemistry.equilibrium_coefficients.calculate();
             self.boron.calculate();
             self.carbonate_chemistry.calculate();
