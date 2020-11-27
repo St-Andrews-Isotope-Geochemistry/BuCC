@@ -1,6 +1,6 @@
-classdef CarbonateChemistry < handle
+classdef CarbonateChemistry < handle&Collator
     properties
-        pH = pX();
+        pH
         
         dic = NaN;
         alkalinity = NaN;
@@ -48,6 +48,7 @@ classdef CarbonateChemistry < handle
         % Constructor
         function self = CarbonateChemistry()
             self.equilibrium_coefficients = EquilibriumCoefficients();
+            self.pH = pX();
         end
         
         function calculateBoronFromSalinity(self)
