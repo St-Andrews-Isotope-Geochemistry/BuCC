@@ -1,4 +1,4 @@
-classdef d11B_CO2 < handle
+classdef d11B_CO2 < handle&Collator
     properties
         species_calibration
         boron
