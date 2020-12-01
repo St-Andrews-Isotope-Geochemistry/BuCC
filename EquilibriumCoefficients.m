@@ -79,8 +79,9 @@ classdef EquilibriumCoefficients < handle
         function calculate(self)
             MyAMI_search = what("MyAMI");
             current_directory = pwd;
-            MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
             if ~isempty(MyAMI_search)
+                MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
+            
                 [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium,self.magnesium);
                 
                 self.kw.value = k_values(1);
