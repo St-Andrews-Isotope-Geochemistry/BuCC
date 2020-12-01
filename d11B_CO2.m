@@ -7,11 +7,12 @@ classdef d11B_CO2 < handle&Collator
     methods
         % Constructor
         function self = d11B_CO2()
+            % addpath("./Geochemistry_Helpers");
             addpath("./Boron_Species_Calibration");
             addpath("./Boron_Systematics");
             addpath("./CO2_Systematics");
+            addpath("./CO2_Systematics/MyAMI");
 %             addpath(genpath("./CO2_Systematics"));
-            addpath("./Geochemistry_Helpers");
             
             self.species_calibration = BoronSpeciesCalibration();
             self.boron = Boron_pH();

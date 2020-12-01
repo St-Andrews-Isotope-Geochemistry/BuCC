@@ -8,13 +8,15 @@ test.species_calibration.d11B_s.value = 20;
 
 
 test.carbonate_chemistry.temperature = 25;
-test.carbonate_chemistry.salinity = 25;
+test.carbonate_chemistry.salinity = 35;
 test.carbonate_chemistry.pressure = 0;
 test.carbonate_chemistry.calcium = 0.01;
 test.carbonate_chemistry.magnesium = 0.05;
 
-test.carbonate_chemistry.dic = 2000;
+test.carbonate_chemistry.units = " mol/kg";
+
+test.carbonate_chemistry.dic = 2000e-6;
 
 test.calculate();
 
-disp(test.carbonate_chemistry.alkalinity);
+test.carbonate_chemistry.show("alkalinity");
