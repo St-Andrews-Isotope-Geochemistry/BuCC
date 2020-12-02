@@ -13,11 +13,14 @@ classdef EquilibriumCoefficients < handle
         kp2 = EquilibriumCoefficient();
         kp3 = EquilibriumCoefficient();
         
-        temperature = NaN
-        salinity = NaN
-        pressure = NaN
-        calcium = NaN
-        magnesium = NaN
+        conditions = Conditions();
+    end
+    properties (Dependent=true)
+        temperature
+        salinity
+        pressure
+        calcium
+        magnesium
     end
     properties (Hidden=true)
         property_names = ["k0","k1","k2","kb","kw","kc","ka","ks","kp1","kp2","kp3"];
@@ -27,29 +30,47 @@ classdef EquilibriumCoefficients < handle
         % Constructor
         function self = EquilibriumCoefficients()
             self.set_pressure_correction();
+            self.setAll("conditions",self.conditions);
+        end
+        
+        % Getters
+        function output = get.temperature(self)
+            output = self.conditions.temperature;
+        end
+        function output = get.salinity(self)
+            output = self.conditions.salinity;
+        end
+        function output = get.pressure(self)
+            output = self.conditions.pressure;
+        end
+        function output = get.calcium(self)
+            output = self.conditions.calcium;
+        end
+        function output = get.magnesium(self)
+            output = self.conditions.magnesium;
         end
         
         % Setters
-        function set.temperature(self,value);
-            self.temperature = value;
-            self.setAll("temperature",value);
+        function set.temperature(self,value)
+            self.conditions.temperature = value;
         end
-        function set.salinity(self,value);
-            self.salinity = value;
-            self.setAll("salinity",value);
+        function set.salinity(self,value)
+            self.conditions.salinity = value;
         end
-        function set.pressure(self,value);
-            self.pressure = value;
-            self.setAll("pressure",value);
+        function set.pressure(self,value)
+            self.conditions.pressure = value;
         end
-        function set.calcium(self,value);
-            self.calcium = value;
-            self.setAll("calcium",value);
+        function set.calcium(self,value)
+            self.conditions.calcium = value;
         end
-        function set.magnesium(self,value);
-            self.magnesium = value;
-            self.setAll("magnesium",value);
+        function set.magnesium(self,value)
+            self.conditions.magnesium = value;
         end
+        function set.conditions(self,value);
+            self.conditions = value;
+            self.setAll("conditions",self.conditions);
+        end
+        
         
         function set_pressure_correction(self)
             try
@@ -87,7 +108,8 @@ classdef EquilibriumCoefficients < handle
             if ~isempty(MyAMI_search)
                 MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
             
-                [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium,self.magnesium);
+                mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+                [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
                 
                 self.kw.value = k_values(1);
                 self.k1.value = k_values(2);
