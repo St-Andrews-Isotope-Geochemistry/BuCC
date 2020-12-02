@@ -53,7 +53,12 @@ classdef EquilibriumCoefficients < handle
         
         function set_pressure_correction(self)
             try
-                raw_file_contents = fileread("./CO2_Systematics/Configuration/equilibrium_coefficient_pressure_correction.json");                
+                co2_systematics_search = what("CO2_Systematics");
+                current_directory = pwd;
+                co2_systematics_search = strrep(strrep(co2_systematics_search.path,current_directory,"."),"\","/");
+            
+                
+                raw_file_contents = fileread(co2_systematics_search+"/Configuration/equilibrium_coefficient_pressure_correction.json");                
                 json_file_contents = jsondecode(raw_file_contents);
                 valid_json_file_found = 1;
             catch
