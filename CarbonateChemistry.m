@@ -164,7 +164,11 @@ classdef CarbonateChemistry < handle&Collator
             end
         end
         function calculate(self)
-            for self_index=1:numel(self);
+            for self_index=1:numel(self);                
+                mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+                calcium = self(self_index).calcium/mgca_unit_normalisation;
+                magnesium = self(self_index).magnesium/mgca_unit_normalisation;
+                
                 if ~self(self_index).equilibrium_coefficients.calculated;
                     self(self_index).equilibrium_coefficients.calculate();
                 end
@@ -176,7 +180,11 @@ classdef CarbonateChemistry < handle&Collator
 
                 if ~isnan(self(self_index).co2) || ~isnan(self(self_index).atmospheric_co2_partial_pressure)
                     self(self_index).calculate_CO2();
-                end            
+                end
+                if ~isnan(self(self_index).saturation_state)
+                    self(self_index).co3 = (self(self_index).saturation_state*self(self_index).equilibrium_coefficients.kc.value)/calcium;
+                    known_properties(known_properties=="saturation_state") = "co3";
+                end
 
                 k1 = self(self_index).equilibrium_coefficients.k1.value;
                 k2 = self(self_index).equilibrium_coefficients.k2.value;
@@ -236,6 +244,8 @@ classdef CarbonateChemistry < handle&Collator
                             hco3 = dic/(1+(pH/k1)+(k2/pH));
                             co3 = dic/(1+(pH/k2)+((pH^2)/(k1*k2)));
                             alkalinity = co2*((k1/pH)+((2*k1*k2)/pH^2))+((kb*self(self_index).boron)/(kb+pH))+(kw/pH)-pH;
+                        otherwise
+                            error("Not implemented yet");
                     end
                     self(self_index).dic = dic*unit_normalisation;
                     self(self_index).alkalinity = alkalinity*unit_normalisation;
@@ -244,7 +254,7 @@ classdef CarbonateChemistry < handle&Collator
                     self(self_index).co3 = co3*unit_normalisation;
 
                     self(self_index).calculate_CO2();
-                    self(self_index).saturation_state = ((self(self_index).calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
+                    self(self_index).saturation_state = (calcium*co3)/self(self_index).equilibrium_coefficients.kc.value;
                 elseif ~isnan(self(self_index).dic) && ~isnan(self(self_index).co2)
                     self(self_index).estimate_units("dic");
                     unit_normalisation = 10^self(self_index).units_value;
