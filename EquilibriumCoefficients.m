@@ -129,50 +129,52 @@ classdef EquilibriumCoefficients < handle
         end
         
         function calculate(self)
-            MyAMI_search = what("MyAMI");
-            current_directory = pwd;
-            if ~isempty(MyAMI_search)
-                MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
-            
-                mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
-                [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
-                
-                self.kw.value = k_values(1);
-                self.k1.value = k_values(2);
-                self.k2.value = k_values(3);
-                self.kc.value = k_values(4);
-                self.kb.value = k_values(5);
-                self.ka.value = k_values(6);
-                self.k0.value = k_values(7);
-                self.ks.value = k_values(8);
-                self.original_ks.value = k_values(8);
-                
-                self.kf.value = 0.001764409566690456265466990793;
-                self.kf.doPressureCorrection();
-                self.original_kf.value = 0.001764409566690456265466990793;
-                
-                self.ks.doPressureCorrection();           
-                
-                s = 0.028235434132860125905351011966;
-                f = 0.000068325839688367280035097284;
-                
-                tb = 1+self.ks.correction+self.ks.value/s+(s*self.ks.correction)/self.ks.value;
-                t = (f/self.kf.value)*((self.ks.value/s)*self.kf.correction + self.kf.correction);
-                b = (f/self.kf.value)*((self.ks.value/s) + self.ks.correction);
-                
-                scale_correction = (tb+t)/(tb+b);                
-                
-                self.kw.doScaleCorrectedPressureCorrection(scale_correction);
-                self.k1.doScaleCorrectedPressureCorrection(scale_correction);
-                self.k2.doScaleCorrectedPressureCorrection(scale_correction);
-                self.kc.doScaleCorrectedPressureCorrection(scale_correction);
-                self.kb.doScaleCorrectedPressureCorrection(scale_correction);
-                self.ka.doScaleCorrectedPressureCorrection(scale_correction);
-                self.k0.doScaleCorrectedPressureCorrection(scale_correction);
-                
-                self.calculated = true;
-            else
-                error("Can't find MyAMI");
+            if ~self.calculated
+                MyAMI_search = what("MyAMI");
+                current_directory = pwd;
+                if ~isempty(MyAMI_search)
+                    MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
+
+                    mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+                    [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
+
+                    self.kw.value = k_values(1);
+                    self.k1.value = k_values(2);
+                    self.k2.value = k_values(3);
+                    self.kc.value = k_values(4);
+                    self.kb.value = k_values(5);
+                    self.ka.value = k_values(6);
+                    self.k0.value = k_values(7);
+                    self.ks.value = k_values(8);
+                    self.original_ks.value = k_values(8);
+
+                    self.kf.value = 0.001764409566690456265466990793;
+                    self.kf.doPressureCorrection();
+                    self.original_kf.value = 0.001764409566690456265466990793;
+
+                    self.ks.doPressureCorrection();
+
+                    s = 0.028235434132860125905351011966;
+                    f = 0.000068325839688367280035097284;
+
+                    tb = 1+self.ks.correction+self.ks.value/s+(s*self.ks.correction)/self.ks.value;
+                    t = (f/self.kf.value)*((self.ks.value/s)*self.kf.correction + self.kf.correction);
+                    b = (f/self.kf.value)*((self.ks.value/s) + self.ks.correction);
+
+                    scale_correction = (tb+t)/(tb+b);
+
+                    self.kw.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.k1.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.k2.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.kc.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.kb.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.ka.doScaleCorrectedPressureCorrection(scale_correction);
+                    self.k0.doScaleCorrectedPressureCorrection(scale_correction);
+
+                    self.calculated = true;
+                else
+                    error("Can't find MyAMI");
+                end
             end
         end
     end
