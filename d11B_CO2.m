@@ -8,13 +8,13 @@ classdef d11B_CO2 < handle&Collator
         % Constructor
         function self = d11B_CO2()
             % addpath("./Geochemistry_Helpers");
-            addpath("./Boron_Species_Calibration");
-            addpath("./Boron_Systematics");
-            addpath("./CO2_Systematics");
-            addpath("./CO2_Systematics/MyAMI");
+%             addpath("./Boron_Species_Calibration");
+%             addpath("./Boron_Systematics");
+%             addpath("./CO2_Systematics");
+%             addpath("./CO2_Systematics/MyAMI");
 %             addpath(genpath("./CO2_Systematics"));
             
-            self.species_calibration = BoronSpeciesCalibration();
+            self.species_calibration = BoronSpeciesCalibration("polynomial",[1,0]);
             self.boron = Boron_pH();
             self.carbonate_chemistry = CarbonateChemistry();
         
@@ -25,10 +25,12 @@ classdef d11B_CO2 < handle&Collator
         end
         
         function calculate(self)
-            self.species_calibration.apply();
-            self.carbonate_chemistry.equilibrium_coefficients.calculate();
-            self.boron.calculate();
-            self.carbonate_chemistry.calculate();
+            for self_index = 1:numel(self);
+                self(self_index).species_calibration.apply();
+                self(self_index).carbonate_chemistry.equilibrium_coefficients.calculate();
+                self(self_index).boron.calculate();
+                self(self_index).carbonate_chemistry.calculate();
+            end
         end
     end
 end
