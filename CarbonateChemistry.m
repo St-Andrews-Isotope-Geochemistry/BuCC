@@ -245,6 +245,66 @@ classdef CarbonateChemistry < handle&Collator
 
                     self(self_index).calculate_CO2();
                     self(self_index).saturation_state = ((self(self_index).calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
+                elseif ~isnan(self(self_index).dic) && ~isnan(self(self_index).co2)
+                    self(self_index).estimate_units("dic");
+                    unit_normalisation = 10^self(self_index).units_value;
+                            
+                    dic = (self(self_index).dic/unit_normalisation);
+                    co2 = (self(self_index).co2/unit_normalisation);
+
+                    
+                    
+                    p2 = dic-co2;
+                    p1 = -co2*k1;
+                    p0 = -co2*k1*k2;
+                    p = [p2,p1,p0];
+                    r = roots(p);
+                    pH = max(real(r));
+                    
+                    dic = co2*(1+(k1/pH)+k1*(k2/pH^2));
+                    hco3 = dic/(1+(pH/k1)+(k2/pH));
+                    co3 = dic/(1+(pH/k2)+((pH^2)/(k1*k2)));
+                    alkalinity = co2*((k1/pH)+((2*k1*k2)/pH^2))+(kb*self(self_index).boron)/(kb+pH)+(kw/pH)-pH;
+                        
+                    self(self_index).dic = dic*unit_normalisation;
+                    self(self_index).alkalinity = alkalinity*unit_normalisation;
+                    self(self_index).co2 = co2*unit_normalisation;
+                    self(self_index).hco3 = hco3*unit_normalisation;
+                    self(self_index).co3 = co3*unit_normalisation;
+
+%                     self(self_index).calculate_CO2();
+                    self(self_index).saturation_state = ((self(self_index).calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
+                    self(self_index).pH.value = pH;
+                elseif ~isnan(self(self_index).alkalinity) && ~isnan(self(self_index).co2)
+                    self(self_index).estimate_units("alkalinity");
+                    unit_normalisation = 10^self(self_index).units_value;
+                            
+                    alkalinity = (self(self_index).alkalinity/unit_normalisation);
+                    co2 = (self(self_index).co2/unit_normalisation);
+                    
+                    p4 = 1.;              
+                    p3 = kb+alkalinity;
+                    p2 = alkalinity*kb-co2*k1-kb*self.boron-kw;
+                    p1 = -co2*kb*k1-co2*2.*k1*k2-kw*kb;
+                    p0 = -2.*co2*kb*k1*k2;
+                    p = [p4,p3,p2,p1,p0];
+                    r = roots(p);
+                    pH = max(real(r));
+                    
+                    dic = co2*(1+(k1/pH)+k1*(k2/pH^2));
+                    hco3 = dic/(1+(pH/k1)+(k2/pH));
+                    co3 = dic/(1+(pH/k2)+((pH^2)/(k1*k2)));
+%                     alkalinity = co2*((k1/pH)+((2*k1*k2)/pH^2))+(kb*self(self_index).boron)/(kb+pH)+(kw/pH)-pH;
+                        
+                    self(self_index).dic = dic*unit_normalisation;
+                    self(self_index).alkalinity = alkalinity*unit_normalisation;
+                    self(self_index).co2 = co2*unit_normalisation;
+                    self(self_index).hco3 = hco3*unit_normalisation;
+                    self(self_index).co3 = co3*unit_normalisation;
+
+%                     self(self_index).calculate_CO2();
+                    self(self_index).saturation_state = ((self(self_index).calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
+                    self(self_index).pH.value = pH;
                 else
                     error("Not implemented yet");
                 end
