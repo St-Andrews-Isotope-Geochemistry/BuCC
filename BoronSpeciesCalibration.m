@@ -1,7 +1,7 @@
 classdef BoronSpeciesCalibration < handle
     properties
-        d11B_s = delta("B",NaN);
-        d11B_4 = delta("B",NaN);
+        d11B_s
+        d11B_4
         
         form = "";
         coefficients = [];
@@ -15,6 +15,8 @@ classdef BoronSpeciesCalibration < handle
                 self.form = form;
                 self.coefficients = coefficients;
             end
+            self.d11B_s = delta("B",NaN);
+            self.d11B_4 = delta("B",NaN);
         end
         function output = apply(self)
             if self.form=="polynomial" || self.form=="linear"
