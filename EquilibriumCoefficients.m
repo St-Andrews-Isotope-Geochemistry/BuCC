@@ -1,19 +1,26 @@
 classdef EquilibriumCoefficients < handle
     properties
-        k0 = EquilibriumCoefficient();
-        k1 = EquilibriumCoefficient();
-        k2 = EquilibriumCoefficient();
-        kb = EquilibriumCoefficient();
-        kw = EquilibriumCoefficient();
-        kc = EquilibriumCoefficient();
-        ka = EquilibriumCoefficient();
-        ks = EquilibriumCoefficient();
+        k0
+        k1
+        k2
+        kb
+        kw
+        kc
+        ka
+        ks
+        kf
         
-        kp1 = EquilibriumCoefficient();
-        kp2 = EquilibriumCoefficient();
-        kp3 = EquilibriumCoefficient();
+        original_ks
+        original_kf
         
-        conditions = Conditions();
+        kp1
+        kp2
+        kp3
+        
+        sulphate = 0.02824;
+        fluoride = 7e-5;
+        
+        conditions;
     end
     properties (Dependent=true)
         temperature
@@ -23,12 +30,31 @@ classdef EquilibriumCoefficients < handle
         magnesium
     end
     properties (Hidden=true)
-        property_names = ["k0","k1","k2","kb","kw","kc","ka","ks","kp1","kp2","kp3"];
+        property_names = ["k0","k1","k2","kb","kw","kc","ka","ks","kp1","kp2","kp3","kf"];
         calculated = false;
     end
     methods
         % Constructor
         function self = EquilibriumCoefficients()
+            self.conditions = Conditions();
+            
+            self.k0 = EquilibriumCoefficient();
+            self.k1 = EquilibriumCoefficient();
+            self.k2 = EquilibriumCoefficient();
+            self.kb = EquilibriumCoefficient();
+            self.kw = EquilibriumCoefficient();
+            self.kc = EquilibriumCoefficient();
+            self.ka = EquilibriumCoefficient();
+            self.ks = EquilibriumCoefficient();
+            self.kf = EquilibriumCoefficient();
+            
+            self.original_ks = EquilibriumCoefficient();
+            self.original_kf = EquilibriumCoefficient();
+            
+            self.kp1 = EquilibriumCoefficient();
+            self.kp2 = EquilibriumCoefficient();
+            self.kp3 = EquilibriumCoefficient();
+            
             self.set_pressure_correction();
             self.setAll("conditions",self.conditions);
         end
@@ -119,15 +145,30 @@ classdef EquilibriumCoefficients < handle
                 self.ka.value = k_values(6);
                 self.k0.value = k_values(7);
                 self.ks.value = k_values(8);
+                self.original_ks.value = k_values(8);
                 
-                self.kw.doPressureCorrection();
-                self.k1.doPressureCorrection();
-                self.k2.doPressureCorrection();
-                self.kc.doPressureCorrection();
-                self.kb.doPressureCorrection();
-                self.ka.doPressureCorrection();
-                self.k0.doPressureCorrection();
-                self.ks.doPressureCorrection();
+                self.kf.value = 0.001764409566690456265466990793;
+                self.kf.doPressureCorrection();
+                self.original_kf.value = 0.001764409566690456265466990793;
+                
+                self.ks.doPressureCorrection();           
+                
+                s = 0.028235434132860125905351011966;
+                f = 0.000068325839688367280035097284;
+                
+                tb = 1+self.ks.correction+self.ks.value/s+(s*self.ks.correction)/self.ks.value;
+                t = (f/self.kf.value)*((self.ks.value/s)*self.kf.correction + self.kf.correction);
+                b = (f/self.kf.value)*((self.ks.value/s) + self.ks.correction);
+                
+                scale_correction = (tb+t)/(tb+b);                
+                
+                self.kw.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k1.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k2.doScaleCorrectedPressureCorrection(scale_correction);
+                self.kc.doScaleCorrectedPressureCorrection(scale_correction);
+                self.kb.doScaleCorrectedPressureCorrection(scale_correction);
+                self.ka.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k0.doScaleCorrectedPressureCorrection(scale_correction);
                 
                 self.calculated = true;
             else
@@ -135,7 +176,7 @@ classdef EquilibriumCoefficients < handle
             end
         end
     end
-    methods (Static)        
+    methods (Static)
         function [k_values,k_values_correction] = run_MyAMI(MyAMI_path,temperature,salinity,calcium,magnesium);
             command = join(["python ",MyAMI_path,"/PITZER.py ",temperature," ",salinity," ",calcium," ",magnesium],"");
             [status,result] = system(command);
