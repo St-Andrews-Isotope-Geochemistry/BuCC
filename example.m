@@ -13,9 +13,9 @@ test.carbonate_chemistry.pressure = 0;
 test.carbonate_chemistry.calcium = 0.01;
 test.carbonate_chemistry.magnesium = 0.05;
 
-test.carbonate_chemistry.units = " mol/kg";
+% test.carbonate_chemistry.units = " mol/kg";
 
-test.carbonate_chemistry.dic = 2000e-6;
+test.carbonate_chemistry.dic = 2000;
 
 test.calculate();
 
