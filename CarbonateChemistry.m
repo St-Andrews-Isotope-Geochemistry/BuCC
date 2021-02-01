@@ -165,8 +165,8 @@ classdef CarbonateChemistry < handle&Collator
             end
         end
         function calculate(self)
-            for self_index=1:numel(self);
-                mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+            for self_index=1:numel(self);                
+                mgca_unit_normalisation = 10^self(self_index).conditions.mgca_units_value;
                 calcium = self(self_index).calcium/mgca_unit_normalisation;
                 magnesium = self(self_index).magnesium/mgca_unit_normalisation;
                 

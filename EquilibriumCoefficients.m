@@ -1,4 +1,4 @@
-classdef EquilibriumCoefficients < handle
+classdef EquilibriumCoefficients < handle&Collator
     properties
         k0
         k1
