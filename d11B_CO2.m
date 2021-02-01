@@ -33,4 +33,12 @@ classdef d11B_CO2 < handle&Collator
             end
         end
     end
+    methods (Static=true)
+        function output = create(number)
+            output(number) = d11B_CO2();
+            for index = 1:number
+                output(index) = d11B_CO2();
+            end
+        end
+    end
 end
