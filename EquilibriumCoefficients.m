@@ -48,9 +48,6 @@ classdef EquilibriumCoefficients < handle
             self.ks = EquilibriumCoefficient();
             self.kf = EquilibriumCoefficient();
             
-            self.original_ks = EquilibriumCoefficient();
-            self.original_kf = EquilibriumCoefficient();
-            
             self.kp1 = EquilibriumCoefficient();
             self.kp2 = EquilibriumCoefficient();
             self.kp3 = EquilibriumCoefficient();
@@ -100,12 +97,12 @@ classdef EquilibriumCoefficients < handle
         
         function set_pressure_correction(self)
             try
-                co2_systematics_search = what("CO2_Systematics");
+                co2_systematics_search = what("CO2_Systematics/Configuration");
                 current_directory = pwd;
-                co2_systematics_search = strrep(strrep(co2_systematics_search.path,current_directory,"."),"\","/");
+                co2_systematics_search = strrep(strrep(co2_systematics_search(1).path,current_directory,"."),"\","/");
             
                 
-                raw_file_contents = fileread(co2_systematics_search+"/Configuration/equilibrium_coefficient_pressure_correction.json");                
+                raw_file_contents = fileread(co2_systematics_search+"/equilibrium_coefficient_pressure_correction.json");
                 json_file_contents = jsondecode(raw_file_contents);
                 valid_json_file_found = 1;
             catch
@@ -133,7 +130,7 @@ classdef EquilibriumCoefficients < handle
                 MyAMI_search = what("MyAMI");
                 current_directory = pwd;
                 if ~isempty(MyAMI_search)
-                    MyAMI_relative = strrep(strrep(MyAMI_search.path,current_directory,"."),"\","/");
+                    MyAMI_relative = strrep(strrep(MyAMI_search(1).path,current_directory,"."),"\","/");
 
                     mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
                     [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
@@ -146,20 +143,20 @@ classdef EquilibriumCoefficients < handle
                     self.ka.value = k_values(6);
                     self.k0.value = k_values(7);
                     self.ks.value = k_values(8);
-                    self.original_ks.value = k_values(8);
+%                     self.original_ks.value = k_values(8);
 
                     self.kf.value = 0.001764409566690456265466990793;
                     self.kf.doPressureCorrection();
-                    self.original_kf.value = 0.001764409566690456265466990793;
+%                     self.original_kf.value = 0.001764409566690456265466990793;
 
                     self.ks.doPressureCorrection();
 
-                    s = 0.028235434132860125905351011966;
-                    f = 0.000068325839688367280035097284;
+%                     s = 0.028235434132860125905351011966;
+%                     f = 0.000068325839688367280035097284;
 
-                    tb = 1+self.ks.correction+self.ks.value/s+(s*self.ks.correction)/self.ks.value;
-                    t = (f/self.kf.value)*((self.ks.value/s)*self.kf.correction + self.kf.correction);
-                    b = (f/self.kf.value)*((self.ks.value/s) + self.ks.correction);
+                    tb = 1+self.ks.correction+self.ks.value/self.sulphate+(self.sulphate*self.ks.correction)/self.ks.value;
+                    t = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate)*self.kf.correction + self.kf.correction);
+                    b = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate) + self.ks.correction);
 
                     scale_correction = (tb+t)/(tb+b);
 
