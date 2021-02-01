@@ -29,12 +29,6 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
 
         pKb = pX.empty();
         pH = pX.empty();
-
-%         temperature = NaN;
-%         salinity = NaN;
-%         pressure = NaN;
-%         Ca = NaN;
-%         Mg = NaN;
     end
     properties (Dependent)
         H;
@@ -47,11 +41,18 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
     end
     methods
         % Constructor
-        function self = Boron_pH(self)
+        function self = Boron_pH()
             self.d11B_4 = delta("Boron",NaN);
             self.d11B_sw = delta("Boron",39.61);
             self.pKb = pX(8.6);
             self.pH = pX(NaN);
+        end
+        function self = noAssumptions(self)
+            self.d11B_4 = delta("Boron",NaN);
+            self.d11B_sw = delta("Boron",NaN);
+            self.pKb = pX(NaN);
+            self.pH = pX(NaN);
+            self.epsilon = NaN;
         end
 
         % Setters
