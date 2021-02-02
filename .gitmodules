@@ -1,0 +1,6 @@
+[submodule "Geochemistry_Helpers"]
+	path = Geochemistry_Helpers
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/Geochemistry_Helpers
+[submodule "MyAMI"]
+	path = MyAMI
+	url = https://github.com/St-Andrews-Isotope-Geochemistry/MyAMI
