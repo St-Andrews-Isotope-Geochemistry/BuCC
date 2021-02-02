@@ -144,6 +144,8 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         function show(self,parameter);
             if parameter=="alkalinity" || parameter=="dic" || parameter=="co2" || parameter=="hco3" || parameter=="co3"
                 disp(join([num2str(self.(parameter)),self.units]));
+            elseif parameter=="temperature"
+                disp(join([num2str(self.(parameter)),"C"],""));
             else
                 disp(self.(parameter));
             end
