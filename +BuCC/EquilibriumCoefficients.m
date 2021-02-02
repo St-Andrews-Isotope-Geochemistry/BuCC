@@ -97,12 +97,12 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         
         function set_pressure_correction(self)
             try
-                co2_systematics_search = what("CO2_Systematics/Configuration");
+                bucc_search = what("+Bucc");
                 current_directory = pwd;
-                co2_systematics_search = strrep(strrep(co2_systematics_search(1).path,current_directory,"."),"\","/");
+                bucc_search = strrep(strrep(join([bucc_search(1).path,"\Configuration"],""),current_directory,"."),"\","/");
             
                 
-                raw_file_contents = fileread(co2_systematics_search+"/equilibrium_coefficient_pressure_correction.json");
+                raw_file_contents = fileread(bucc_search+"/equilibrium_coefficient_pressure_correction.json");
                 json_file_contents = jsondecode(raw_file_contents);
                 valid_json_file_found = 1;
             catch
@@ -127,10 +127,10 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         
         function calculate(self)
             if ~self.calculated
-                MyAMI_search = what("MyAMI");
+                BuCC_search = what("+BuCC");
                 current_directory = pwd;
-                if ~isempty(MyAMI_search)
-                    MyAMI_relative = strrep(strrep(MyAMI_search(1).path,current_directory,"."),"\","/");
+                if ~isempty(BuCC_search)
+                    MyAMI_relative = strrep(strrep(join([BuCC_search(1).path,"\+MyAMI"],""),current_directory,"."),"\","/");
 
                     mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
                     [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
