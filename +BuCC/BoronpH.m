@@ -1,4 +1,4 @@
-classdef Boron_pH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
+classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
     % Boron_pH calculates the unknown parameter from d11B_4, d11B_sw, pKb, pH and alpha
     %
     % Boron_pH Properties:
@@ -41,7 +41,7 @@ classdef Boron_pH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
     end
     methods
         % Constructor
-        function self = Boron_pH()
+        function self = BoronpH()
             self.d11B_4 = Geochemistry_Helpers.delta("Boron",NaN);
             self.d11B_sw = Geochemistry_Helpers.delta("Boron",39.61);
             self.pKb = Geochemistry_Helpers.pX(8.6);
