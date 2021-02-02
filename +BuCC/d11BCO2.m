@@ -8,7 +8,7 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
         % Constructor
         function self = d11BCO2()            
             self.species_calibration = BuCC.BoronSpeciesCalibration("polynomial",[1,0]);
-            self.boron = BuCC.Boron_pH();
+            self.boron = BuCC.BoronpH();
             self.carbonate_chemistry = BuCC.CarbonateChemistry();
         
             % Link together
@@ -18,7 +18,7 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
         end
         
         function calculate(self)
-            for self_index = 1:numel(self);
+            for self_index = 1:numel(self)
                 self(self_index).species_calibration.apply();
                 self(self_index).carbonate_chemistry.equilibrium_coefficients.calculate();
                 self(self_index).boron.calculate();
