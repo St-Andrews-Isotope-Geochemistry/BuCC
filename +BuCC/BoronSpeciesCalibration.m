@@ -8,15 +8,15 @@ classdef BoronSpeciesCalibration < handle
     end
     methods
         function self = BoronSpeciesCalibration(form,coefficients)
-            if nargin==0;
+            if nargin==0
                 self.form = "";
                 self.coefficients = [];
             else
                 self.form = form;
                 self.coefficients = coefficients;
             end
-            self.d11B_s = delta("B",NaN);
-            self.d11B_4 = delta("B",NaN);
+            self.d11B_s = Geochemistry_Helpers.delta("B",NaN);
+            self.d11B_4 = Geochemistry_Helpers.delta("B",NaN);
         end
         function output = apply(self)
             if self.form=="polynomial" || self.form=="linear"

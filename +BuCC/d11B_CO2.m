@@ -1,4 +1,4 @@
-classdef d11B_CO2 < handle&Collator
+classdef d11B_CO2 < handle&Geochemistry_Helpers.Collator
     properties
         species_calibration
         boron
@@ -6,17 +6,10 @@ classdef d11B_CO2 < handle&Collator
     end
     methods
         % Constructor
-        function self = d11B_CO2()
-            % addpath("./Geochemistry_Helpers");
-%             addpath("./Boron_Species_Calibration");
-%             addpath("./Boron_Systematics");
-%             addpath("./CO2_Systematics");
-%             addpath("./CO2_Systematics/MyAMI");
-%             addpath(genpath("./CO2_Systematics"));
-            
-            self.species_calibration = BoronSpeciesCalibration("polynomial",[1,0]);
-            self.boron = Boron_pH();
-            self.carbonate_chemistry = CarbonateChemistry();
+        function self = d11B_CO2()            
+            self.species_calibration = BuCC.BoronSpeciesCalibration("polynomial",[1,0]);
+            self.boron = BuCC.Boron_pH();
+            self.carbonate_chemistry = BuCC.CarbonateChemistry();
         
             % Link together
             self.boron.d11B_4 = self.species_calibration.d11B_4;

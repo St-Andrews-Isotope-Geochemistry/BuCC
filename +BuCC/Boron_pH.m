@@ -1,9 +1,9 @@
-classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
+classdef Boron_pH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
     % Boron_pH calculates the unknown parameter from d11B_4, d11B_sw, pKb, pH and alpha
     %
     % Boron_pH Properties:
-    %   d11B_4 - Delta 11 Borate
-    %   d11B_sw - Delta 11 Boron of seawater
+    %   d11B_4 - Geochemistry_Helpers.delta 11 Borate
+    %   d11B_sw - Geochemistry_Helpers.delta 11 Boron of seawater
     %   epsilon - Fractionation between boric acid and borate, defaults to 27.2‰
     %   pKb - Equivalence point of boric acid and borate, defaults to 8.6
     %   pH - Concentration of hydrogen ions
@@ -11,7 +11,7 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
     %   H - Hydrogen ion concentration (provides access to pH object)
     %   Kb - Provides direct access to pKb.value
     %   alpha - epsilon as a ratio
-    %   d11B_3 - Delta 11 Boric acid
+    %   d11B_3 - Geochemistry_Helpers.delta 11 Boric acid
     %
     % Boron_pH Methods:
     %   calculate - Determines the missing parameter and calculates its value. Produces an error if there are not enough known parameters, and a warning if all parameters are known. Defaults to using the fully accurate method, specify input of 1 to use simplified method.
@@ -22,13 +22,13 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
     %   Contact - rdmw1@st-andrews.ac.uk
     %   Licensing - Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0), https://creativecommons.org/licenses/by-nc-sa/4.0/
     properties
-        d11B_4 = delta.empty();
-        d11B_sw = delta.empty();
+        d11B_4 = Geochemistry_Helpers.delta.empty();
+        d11B_sw = Geochemistry_Helpers.delta.empty();
 
         epsilon = 27.2;
 
-        pKb = pX.empty();
-        pH = pX.empty();
+        pKb = Geochemistry_Helpers.pX.empty();
+        pH = Geochemistry_Helpers.pX.empty();
     end
     properties (Dependent)
         H;
@@ -42,16 +42,16 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
     methods
         % Constructor
         function self = Boron_pH()
-            self.d11B_4 = delta("Boron",NaN);
-            self.d11B_sw = delta("Boron",39.61);
-            self.pKb = pX(8.6);
-            self.pH = pX(NaN);
+            self.d11B_4 = Geochemistry_Helpers.delta("Boron",NaN);
+            self.d11B_sw = Geochemistry_Helpers.delta("Boron",39.61);
+            self.pKb = Geochemistry_Helpers.pX(8.6);
+            self.pH = Geochemistry_Helpers.pX(NaN);
         end
         function self = noAssumptions(self)
-            self.d11B_4 = delta("Boron",NaN);
-            self.d11B_sw = delta("Boron",NaN);
-            self.pKb = pX(NaN);
-            self.pH = pX(NaN);
+            self.d11B_4 = Geochemistry_Helpers.delta("Boron",NaN);
+            self.d11B_sw = Geochemistry_Helpers.delta("Boron",NaN);
+            self.pKb = Geochemistry_Helpers.pX(NaN);
+            self.pH = Geochemistry_Helpers.pX(NaN);
             self.epsilon = NaN;
         end
 
@@ -60,17 +60,17 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
             self.pH = -log10(value);
         end
         function set.pH(self,value)
-            if isa(value,"pX")
+            if isa(value,"Geochemistry_Helpers.pX")
                 self.pH = value;
             else
-                self.pH = pX(value);
+                self.pH = Geochemistry_Helpers.pX(value);
             end
         end
         function set.alpha(self,value)
             self.epsilon = (value-1)*1000;
         end
         function set.d11B_3(self,value)
-            self.d11B_4 = delta("B",value-self.epsilon);
+            self.d11B_4 = Geochemistry_Helpers.delta("B",value-self.epsilon);
         end
 
         % Getters
@@ -84,7 +84,7 @@ classdef Boron_pH<handle&Collator&matlab.mixin.Copyable
              value = 1+(self.epsilon/1000);
         end
         function value = get.d11B_3(self)
-            value = delta("B",self.d11B_4.value+self.epsilon);
+            value = Geochemistry_Helpers.delta("B",self.d11B_4.value+self.epsilon);
         end
 
         % d11B_4

@@ -1,4 +1,4 @@
-classdef CarbonateChemistry < handle&Collator
+classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
     properties
         pH
         
@@ -70,12 +70,12 @@ classdef CarbonateChemistry < handle&Collator
         
         % Constructor
         function self = CarbonateChemistry()
-            self.conditions = Conditions();
+            self.conditions = BuCC.Conditions();
             
-            self.equilibrium_coefficients = EquilibriumCoefficients();
+            self.equilibrium_coefficients = BuCC.EquilibriumCoefficients();
             self.equilibrium_coefficients.conditions = self.conditions;
             
-            self.pH = pX();
+            self.pH = Geochemistry_Helpers.pX();
         end
         
         function calculateBoronFromSalinity(self)

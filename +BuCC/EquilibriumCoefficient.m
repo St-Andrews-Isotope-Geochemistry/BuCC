@@ -1,4 +1,4 @@
-classdef EquilibriumCoefficient < pX
+classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
     properties
         conditions;
         
@@ -22,7 +22,7 @@ classdef EquilibriumCoefficient < pX
     methods
         % Constructor
         function self = EquilibriumCoefficient();
-            self.conditions = Conditions();
+            self.conditions = BuCC.Conditions();
         end
         
         % Setters

@@ -1,4 +1,4 @@
-classdef EquilibriumCoefficients < handle&Collator
+classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
     properties
         k0
         k1
@@ -36,21 +36,21 @@ classdef EquilibriumCoefficients < handle&Collator
     methods
         % Constructor
         function self = EquilibriumCoefficients()
-            self.conditions = Conditions();
+            self.conditions = BuCC.Conditions();
             
-            self.k0 = EquilibriumCoefficient();
-            self.k1 = EquilibriumCoefficient();
-            self.k2 = EquilibriumCoefficient();
-            self.kb = EquilibriumCoefficient();
-            self.kw = EquilibriumCoefficient();
-            self.kc = EquilibriumCoefficient();
-            self.ka = EquilibriumCoefficient();
-            self.ks = EquilibriumCoefficient();
-            self.kf = EquilibriumCoefficient();
+            self.k0 = BuCC.EquilibriumCoefficient();
+            self.k1 = BuCC.EquilibriumCoefficient();
+            self.k2 = BuCC.EquilibriumCoefficient();
+            self.kb = BuCC.EquilibriumCoefficient();
+            self.kw = BuCC.EquilibriumCoefficient();
+            self.kc = BuCC.EquilibriumCoefficient();
+            self.ka = BuCC.EquilibriumCoefficient();
+            self.ks = BuCC.EquilibriumCoefficient();
+            self.kf = BuCC.EquilibriumCoefficient();
             
-            self.kp1 = EquilibriumCoefficient();
-            self.kp2 = EquilibriumCoefficient();
-            self.kp3 = EquilibriumCoefficient();
+            self.kp1 = BuCC.EquilibriumCoefficient();
+            self.kp2 = BuCC.EquilibriumCoefficient();
+            self.kp3 = BuCC.EquilibriumCoefficient();
             
             self.set_pressure_correction();
             self.setAll("conditions",self.conditions);
