@@ -21,8 +21,28 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
     end
     methods
         % Constructor
-        function self = EquilibriumCoefficient();
+        function self = EquilibriumCoefficient(name);
             self.conditions = BuCC.Conditions();
+            if nargin>0
+                try
+                    bucc_search = what("+Bucc");
+                    current_directory = pwd;
+                    bucc_search = strrep(strrep(join([bucc_search(1).path,"\Configuration"],""),current_directory,"."),"\","/");
+                    
+                    
+                    raw_file_contents = fileread(bucc_search+"/equilibrium_coefficient_pressure_correction.json");
+                    json_file_contents = jsondecode(raw_file_contents);
+                    valid_json_file_found = 1;
+                catch
+                    valid_json_file_found = 0;
+                end
+                
+                if valid_json_file_found==1
+                    self.pressure_correction = json_file_contents.(name);
+                else
+                    self.pressure_correction = [NaN,NaN,NaN,NaN,NaN];
+                end
+            end
         end
         
         % Setters

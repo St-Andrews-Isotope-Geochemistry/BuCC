@@ -25,7 +25,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
         d11B_4 = Geochemistry_Helpers.delta.empty();
         d11B_sw = Geochemistry_Helpers.delta.empty();
 
-        epsilon = 27.2;
+        epsilon = NaN;
 
         pKb = Geochemistry_Helpers.pX.empty();
         pH = Geochemistry_Helpers.pX.empty();
@@ -35,6 +35,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
         Kb;
         alpha;
         d11B_3;
+        calculable;
     end
     properties (Hidden)
         validated = 0
@@ -44,7 +45,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
         function self = BoronpH()
             self.d11B_4 = Geochemistry_Helpers.delta("Boron",NaN);
             self.d11B_sw = Geochemistry_Helpers.delta("Boron",39.61);
-            self.pKb = Geochemistry_Helpers.pX(8.6);
+            self.pKb = BuCC.EquilibriumCoefficient();
             self.pH = Geochemistry_Helpers.pX(NaN);
         end
         function self = noAssumptions(self)
@@ -85,6 +86,14 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
         end
         function value = get.d11B_3(self)
             value = Geochemistry_Helpers.delta("B",self.d11B_4.value+self.epsilon);
+        end
+        function value = get.calculable(self)
+            self.check_known_values();
+            if self.validated
+                value = true;
+            else
+                value = false;
+            end
         end
 
         % d11B_4
@@ -152,9 +161,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
             number_known = 5-number_unknown;
             if number_unknown>1
                 self.validated = 0;
-                error("System underdetermined");
             elseif number_unknown<1
-                warning("System overdetermined - skipping");
                 self.validated = 2;
             else
                 self.validated = 1;
