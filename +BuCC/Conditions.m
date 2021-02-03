@@ -12,22 +12,40 @@ classdef Conditions < handle
         mgca_units_set = false;
     end
     methods
-        function set.calcium(self,value);
+        function self = Conditions(varargin)
+            parser = inputParser;
+            parser.KeepUnmatched = true;
+            properties = ["temperature","salinity","pressure","calcium","magnesium"];
+            
+            for property = properties
+                addOptional(parser,property,NaN);
+            end
+            
+            parse(parser,varargin{:});
+            
+            for property = properties
+                if ~isempty(parser.Results.(property)) && ~isnan(parser.Results.(property))
+                    self.(property) = parser.Results.(property);
+                end
+            end
+        end
+        
+        function set.calcium(self,value)
             self.calcium = value;
             if ~self.mgca_units_set
                 self.estimate_units("calcium");
             end
         end
-        function set.magnesium(self,value);
+        function set.magnesium(self,value)
             self.magnesium = value;
             self.estimate_units("magnesium");
         end
-        function set.mgca_units(self,value);
+        function set.mgca_units(self,value)
             self.mgca_units = value;
             self.getUnitsValue();
             self.mgca_units_set = true;
         end
-        function estimate_units(self,parameter);
+        function estimate_units(self,parameter)
             units_char = char(self.mgca_units);
             
             typical_values_map = containers.Map(["calcium","magnesium"],[0.01,0.05]);
@@ -52,7 +70,7 @@ classdef Conditions < handle
                 error("Different units for Ca and Mg not allowed");
             end
         end
-        function getUnitsValue(self);
+        function getUnitsValue(self)
             asChar = char(self.mgca_units);
             if asChar(1)=="m"
                 self.mgca_units_value = 3;
@@ -64,6 +82,5 @@ classdef Conditions < handle
                 self.mgca_units_value = NaN;
             end            
         end
-
     end
 end
