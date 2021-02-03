@@ -46,29 +46,29 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         function set.magnesium(self,value)
             self.conditions.magnesium = value;
         end
-        function set.units(self,value);
+        function set.units(self,value)
             self.units = value;
             self.getUnitsValue();
             self.units_set = true;
         end
         
          % Getters
-        function output = get.temperature(self);
+        function output = get.temperature(self)
             output = self.conditions.temperature;
         end
-        function output = get.salinity(self);
+        function output = get.salinity(self)
             output = self.conditions.salinity;
         end
-        function output = get.pressure(self);
+        function output = get.pressure(self)
             output = self.conditions.pressure;
         end
-        function output = get.calcium(self);
+        function output = get.calcium(self)
             output = self.conditions.calcium;
         end
-        function output = get.magnesium(self);
+        function output = get.magnesium(self)
             output = self.conditions.magnesium;
         end
-        function output = get.calculable(self)            
+        function output = get.calculable(self)
             known_properties = self.getKnownProperties();
             if numel(known_properties)==2
                 output = true;
@@ -78,8 +78,23 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         end
         
         % Constructor
-        function self = CarbonateChemistry()
-            self.conditions = BuCC.Conditions();
+        function self = CarbonateChemistry(varargin)
+            parser = inputParser;
+            properties = ["temperature","salinity","pressure","calcium","magnesium","conditions","dic","alkalinity","pH","co2","hco3","co3","atmospheric_co2_partial_pressure","saturation_state"];
+            
+            for property = properties
+                addOptional(parser,property,NaN);
+            end
+            
+            parse(parser,varargin{:});
+            
+            for property = properties
+                self.(property) = parser.Results.(property);
+            end
+            
+            if isempty(parser.Results.conditions)
+                self.conditions = BuCC.Conditions(varargin{:});
+            end
             
             self.equilibrium_coefficients = BuCC.EquilibriumCoefficients();
             self.equilibrium_coefficients.conditions = self.conditions;
@@ -116,7 +131,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             end            
         end
         
-        function estimate_units(self,parameter);
+        function estimate_units(self,parameter)
             units_char = char(self.units);
             if units_char(1)=="x"
                 typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
@@ -137,7 +152,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 self.units = units_char;
             end
         end
-        function getUnitsValue(self);
+        function getUnitsValue(self)
             asChar = char(self.units);
             if asChar(1)=="m"
                 self.units_value = 3;
@@ -150,7 +165,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             end            
         end
         
-        function show(self,parameter);
+        function show(self,parameter)
             if parameter=="alkalinity" || parameter=="dic" || parameter=="co2" || parameter=="hco3" || parameter=="co3"
                 disp(join([num2str(self.(parameter)),self.units]));
             elseif parameter=="temperature"
@@ -176,12 +191,12 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             end
         end
         function calculate(self)
-            for self_index=1:numel(self);                
+            for self_index=1:numel(self)                
                 mgca_unit_normalisation = 10^self(self_index).conditions.mgca_units_value;
                 calcium = self(self_index).calcium/mgca_unit_normalisation;
                 magnesium = self(self_index).magnesium/mgca_unit_normalisation;
                 
-                if ~self(self_index).equilibrium_coefficients.calculated;
+                if ~self(self_index).equilibrium_coefficients.calculated
                     self(self_index).equilibrium_coefficients.calculate();
                 end
                 known_properties = self(self_index).getKnownProperties();
