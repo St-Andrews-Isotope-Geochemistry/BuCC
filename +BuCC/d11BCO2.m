@@ -19,7 +19,7 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
         
         function calculate(self)
             for self_index = 1:numel(self)
-                self(self_index).species_calibration.apply();
+                self(self_index).species_calibration.calculate();
                 self(self_index).carbonate_chemistry.equilibrium_coefficients.calculate();
                 
                 if self(self_index).boron.calculable
