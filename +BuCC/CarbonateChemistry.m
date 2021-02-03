@@ -27,6 +27,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         pressure
         calcium
         magnesium
+        calculable
     end
     methods
         % Setters
@@ -66,6 +67,14 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         end
         function output = get.magnesium(self);
             output = self.conditions.magnesium;
+        end
+        function output = get.calculable(self)            
+            known_properties = self.getKnownProperties();
+            if numel(known_properties)==2
+                output = true;
+            else
+                output = false;
+            end
         end
         
         % Constructor
