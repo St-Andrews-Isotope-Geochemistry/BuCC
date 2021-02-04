@@ -92,7 +92,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 self.(property) = parser.Results.(property);
             end
             
-            if isempty(parser.Results.conditions)
+            if isnan(parser.Results.conditions)
                 self.conditions = BuCC.Conditions(varargin{:});
             end
             
@@ -131,25 +131,52 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             end            
         end
         
-        function estimate_units(self,parameter)
-            units_char = char(self.units);
-            if units_char(1)=="x"
-                typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
+        function setConditions(self,conditions)
+            self.conditions.temperature = conditions.temperature;
+            self.conditions.salinity = conditions.salinity;
+            self.conditions.pressure = conditions.pressure;
+            self.conditions.calcium = conditions.calcium;
+            self.conditions.magnesium = conditions.magnesium;
+        end
+        
+        function estimate_units(self,parameter_1,parameter_2)
+            if ~self.units_set
+                units_char = char(self.units);
+                if units_char(1)=="x"
+                    typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
 
-                % Use dic as the indicator case
-                typical_order_of_magnitude = 3*floor(log10(typical_values_map(parameter))/3);
-                input_order_of_magnitude = 3*floor(log10(self.(parameter))/3);
-                difference_order_of_magnitude = input_order_of_magnitude-typical_order_of_magnitude;
-                self.units_value = difference_order_of_magnitude;
+                    typical_order_of_magnitude = 3*round(floor(log10(typical_values_map(parameter_1)))/3,0);
+                    input_order_of_magnitude = 3*round(floor(log10(self.(parameter_1)))/3,0);
+                    difference_order_of_magnitude = input_order_of_magnitude-typical_order_of_magnitude;
+                    self.units_value = difference_order_of_magnitude;
 
-                if difference_order_of_magnitude==6;
-                    units_char(1) = "μ";
-                elseif difference_order_of_magnitude==3;
-                    units_char(1) = "m";
-                elseif difference_order_of_magnitude==0;
-                    units_char(1) = " ";
+                    if difference_order_of_magnitude==6;
+                        units_char(1) = "μ";
+                    elseif difference_order_of_magnitude==3;
+                        units_char(1) = "m";
+                    elseif difference_order_of_magnitude==0;
+                        units_char(1) = " ";
+                    end
+                    self.units = units_char;
                 end
-                self.units = units_char;
+
+                if nargin==3
+                    units_char = char(self.units);
+
+                    typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
+
+                    typical_order_of_magnitude = 3*round(floor(log10(typical_values_map(parameter_2)))/3,0);
+                    input_order_of_magnitude = 3*round(floor(log10(self.(parameter_2)))/3,0);
+                    difference_order_of_magnitude = input_order_of_magnitude-typical_order_of_magnitude;
+
+                    if difference_order_of_magnitude==6
+                        assert(units_char(1)=="μ","Units mismatch");
+                    elseif difference_order_of_magnitude==3
+                        assert(units_char(1)=="m","Units mismatch");
+                    elseif difference_order_of_magnitude==0
+                        assert(units_char(1)==" ","Units mismatch");
+                    end
+                end
             end
         end
         function getUnitsValue(self)
@@ -182,7 +209,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             if isnan(self.co2) && ~isnan(self.atmospheric_co2_partial_pressure)
                 self.co2 = self.atmospheric_co2_partial_pressure*k0;
             elseif ~isnan(self.co2) && isnan(self.atmospheric_co2_partial_pressure)
-                self.atmospheric_co2_partial_pressure = ((self.co2/unit_normalisation)/k0)*1e6;
+                self.atmospheric_co2_partial_pressure = ((self.co2/unit_normalisation)/k0);
             elseif isnan(self.co2) && isnan(self.atmospheric_co2_partial_pressure)
                 atmospheric_co2_partial_pressure = self.co2/k0;
                 if atmospheric_co2_partial_pressure~=self.atmospheric_co2_partial_pressure && ~isnan(atmospheric_co2_partial_pressure);
@@ -340,14 +367,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                     self(self_index).saturation_state = ((calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
                     self(self_index).pH.value = pH;
                 elseif ~isnan(self.co2) && ~isnan(self.co3)
-                    self(self_index).estimate_units("co3");
-                    co3_units = self(self_index).units_value;
-                    self(self_index).units(1) = "x";
-                    
-                    self(self_index).estimate_units("co2");
-                    co2_units = self(self_index).units_value;
-                    assert(co3_units==co2_units,"Unit mismatch");
-                    
+                    self(self_index).estimate_units("co3","co2");
                     unit_normalisation = 10^self(self_index).units_value;
                     
                     co3 = (self(self_index).co3/unit_normalisation);
