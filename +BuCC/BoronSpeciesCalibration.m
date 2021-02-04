@@ -1,4 +1,4 @@
-classdef BoronSpeciesCalibration < handle
+classdef BoronSpeciesCalibration < handle&Geochemistry_Helpers.Collator
     properties
         d11B_measured
         d11B_4

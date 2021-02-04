@@ -45,7 +45,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
         function self = BoronpH()
             self.d11B_4 = Geochemistry_Helpers.delta("Boron",NaN);
             self.d11B_sw = Geochemistry_Helpers.delta("Boron",39.61);
-            self.pKb = BuCC.EquilibriumCoefficient();
+            self.pKb = BuCC.EquilibriumCoefficient("kb");
             self.pH = Geochemistry_Helpers.pX(NaN);
         end
         function self = noAssumptions(self)
@@ -175,6 +175,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
                 simple = 0;
             end
             for index = 1:numel(self)
+%                 self(index).pKb.calculate();
                 self(index).check_known_values();
                 if self(index).validated==1
                     if isnan(self(index).d11B_4.value)
