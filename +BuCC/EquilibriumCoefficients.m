@@ -10,12 +10,11 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         ks
         kf
         
-        original_ks
-        original_kf
-        
         kp1
         kp2
         kp3
+        
+        MyAMI;
         
         sulphate = 0.02824;
         fluoride = 7e-5;
@@ -89,11 +88,10 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         function set.magnesium(self,value)
             self.conditions.magnesium = value;
         end
-        function set.conditions(self,value);
+        function set.conditions(self,value)
             self.conditions = value;
             self.setAll("conditions",self.conditions);
-        end
-        
+        end        
         
         function set_pressure_correction(self)
             try
@@ -125,34 +123,110 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
             end
         end
         
+        function [k_values,k_correction] = getEquilibriumCoefficients(self,method)
+            if nargin<2
+                method = "MyAMI";
+            end
+            BuCC_search = what("+BuCC");
+            current_directory = pwd; 
+            MyAMI_relative = strrep(strrep(join([BuCC_search(1).path,"\+MyAMI"],""),current_directory,"."),"\","/");
+            mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+            calcium = self.calcium/mgca_unit_normalisation;
+            magnesium = self.magnesium/mgca_unit_normalisation;
+            if strcmp(method,"MyAMI")
+                [k_values,k_correction] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,calcium,magnesium);
+            elseif strcmp(method,"Precalculated")
+                try
+                    calcium_magnesium = readmatrix(MyAMI_relative+"./Precalculated.xls","Range",join(["A:B"],""));
+                    raw_file_contents = fileread(BuCC_search(1).path+"/Configuration/equilibrium_coefficient_functions.json");
+                    json_file_contents = jsondecode(raw_file_contents);
+                    json_fieldnames = fieldnames(json_file_contents);
+                    for fieldname_index = 1:numel(json_fieldnames)
+                        self.(json_fieldnames{fieldname_index}).function_handle = str2func(json_file_contents.(json_fieldnames{fieldname_index}));
+                    end                    
+                catch
+                    error("File not found");
+                end
+                header_rows = sum(isnan(calcium_magnesium(:,1)));
+                calcium_known = calcium_magnesium(header_rows+1:end,1);
+                magnesium_known = calcium_magnesium(header_rows+1:end,2);
+                
+                calcium_unique = unique(calcium_known);
+                magnesium_unique = unique(magnesium_known);
+                
+                calcium_resolution = calcium_unique(2)-calcium_unique(1);
+                calcium_range = max(calcium_unique)-min(calcium_unique);
+                
+                magnesium_resolution = magnesium_unique(2)-magnesium_unique(1);
+                magnesium_range = max(magnesium_unique)-min(magnesium_unique);
+                
+                if mod(calcium,calcium_resolution)==0 && mod(magnesium,magnesium_resolution)==0 % There's an exact result in the spreadsheet
+                    index = header_rows+(1+magnesium/magnesium_resolution)+((calcium/calcium_resolution)*(1+magnesium_range/magnesium_resolution));
+                    coefficients = readmatrix(MyAMI_relative+"./Precalculated.xls","Range",join(["D",num2str(index),":BV",num2str(index)],""));
+                else
+                    calcium_query = [floor(calcium*1000)/1000,ceil(calcium*1000)/1000];
+                    magnesium_query = [floor(magnesium*1000)/1000,ceil(magnesium*1000)/1000];
+                    
+                    for calcium_query_index = 1:numel(calcium_query)
+                        for magnesium_query_index = 1:numel(magnesium_query)
+                            index = header_rows+(1+magnesium_query(magnesium_query_index)/magnesium_resolution)+((calcium_query(calcium_query_index)/calcium_resolution)*(1+magnesium_range/magnesium_resolution));
+                            coefficients(magnesium_query_index,calcium_query_index,:) = readmatrix(MyAMI_relative+"./Precalculated.xls","Range",join(["D",num2str(index),":BV",num2str(index)],""));
+                        end
+                    end
+                    
+                    for coefficient_index = 1:size(coefficients,3)
+                        interpolated_coefficient(coefficient_index) = 1/((calcium_query(2)-calcium_query(1))*(magnesium_query(2)-magnesium_query(1))) * [calcium_query(2)-calcium,calcium-calcium_query(1)] * coefficients(:,:,coefficient_index) * [magnesium_query(2)-magnesium;magnesium-magnesium_query(1)];
+                    end
+                    coefficients = interpolated_coefficient;    
+                    
+                end
+                coefficients = [coefficients,NaN];
+                k_order = ["k0","k1","k2","kb","kw","kc","ka","ks"];
+                k_count = 1;
+                coefficient_start = 1;
+                for coefficient_index = 1:numel(coefficients)
+                    if ~isnan(coefficients(coefficient_index))
+                        continue
+                    else
+                        self.(k_order(k_count)).function_coefficients = coefficients(coefficient_start:coefficient_index-1);
+                        k_count = k_count+1;
+                        coefficient_start = coefficient_index+1;
+                    end
+                end
+                
+                for ck = k_order
+                    self.(ck).calculate();
+                end
+            end
+        end
+        
         function calculate(self)
             if ~self.calculated
-                BuCC_search = what("+BuCC");
-                current_directory = pwd;
-                if ~isempty(BuCC_search)
-                    MyAMI_relative = strrep(strrep(join([BuCC_search(1).path,"\+MyAMI"],""),current_directory,"."),"\","/");
-
+%                 if ~isempty(BuCC_search)
+%                     MyAMI_relative = strrep(strrep(join([BuCC_search(1).path,"\+MyAMI"],""),current_directory,"."),"\","/");
+% 
                     mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
-                    [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
+%                     [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
 
-                    self.kw.value = k_values(1);
-                    self.k1.value = k_values(2);
-                    self.k2.value = k_values(3);
-                    self.kc.value = k_values(4);
-                    self.kb.value = k_values(5);
-                    self.ka.value = k_values(6);
-                    self.k0.value = k_values(7);
-                    self.ks.value = k_values(8);
-%                     self.original_ks.value = k_values(8);
+                    if isempty(self.MyAMI)
+                        self.MyAMI = MyAMI.MyAMI();
+                    end                        
+                    self.MyAMI.calculate(self.conditions.temperature,self.conditions.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation,"Precalculated",true);
+                    k_values = self.MyAMI.results;
+                    
+                    self.k0.value = k_values("k0");
+                    self.k1.value = k_values("k1");
+                    self.k2.value = k_values("k2");
+                    self.kw.value = k_values("kw");
+                    self.kb.value = k_values("kb");
+                    self.kc.value = k_values("kc");
+                    self.ka.value = k_values("ka");
+                    self.ks.value = k_values("ks");
 
                     self.kf.value = 0.001764409566690456265466990793;
                     self.kf.doPressureCorrection();
-%                     self.original_kf.value = 0.001764409566690456265466990793;
 
                     self.ks.doPressureCorrection();
-
-%                     s = 0.028235434132860125905351011966;
-%                     f = 0.000068325839688367280035097284;
 
                     tb = 1+self.ks.correction+self.ks.value/self.sulphate+(self.sulphate*self.ks.correction)/self.ks.value;
                     t = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate)*self.kf.correction + self.kf.correction);
@@ -172,7 +246,7 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
                 else
                     error("Can't find MyAMI");
                 end
-            end
+%             end
         end
     end
     methods (Static)
