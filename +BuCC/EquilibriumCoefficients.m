@@ -209,9 +209,9 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
 %                     [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
 
                     if isempty(self.MyAMI)
-                        self.MyAMI = MyAMI.MyAMI();
+                        self.MyAMI = MyAMI.MyAMI("Precalculated",true);
                     end                        
-                    self.MyAMI.calculate(self.conditions.temperature,self.conditions.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation,"Precalculated",true);
+                    self.MyAMI.calculate(self.conditions.temperature,self.conditions.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
                     k_values = self.MyAMI.results;
                     
                     self.k0.value = k_values("k0");

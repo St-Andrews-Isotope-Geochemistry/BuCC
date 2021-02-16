@@ -1,4 +1,4 @@
-classdef Conditions < handle
+classdef Conditions < handle&Geochemistry_Helpers.Collator
     properties
         temperature = NaN;
         salinity = NaN;

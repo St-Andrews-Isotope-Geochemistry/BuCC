@@ -1,6 +1,8 @@
 classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
     properties
+        name;
         conditions;
+        MyAMI;
         
         pressure_correction = [NaN,NaN,NaN,NaN,NaN]
         correction = NaN;
@@ -26,11 +28,11 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
         function self = EquilibriumCoefficient(name);
             self.conditions = BuCC.Conditions();
             if nargin>0
+                self.name = name;
                 try
                     bucc_search = what("+Bucc");
                     current_directory = pwd;
                     bucc_search = strrep(strrep(join([bucc_search(1).path,"\Configuration"],""),current_directory,"."),"\","/");
-                    
                     
                     raw_pressure_file_contents = fileread(bucc_search+"/equilibrium_coefficient_pressure_correction.json");
                     json_pressure_file_contents = jsondecode(raw_pressure_file_contents);
@@ -38,7 +40,7 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
                     
                     self.pressure_correction = json_pressure_file_contents.(name);
                     
-                    raw_function_file_contents = fileread(BuCC_search(1).path+"/Configuration/equilibrium_coefficient_functions.json");
+                    raw_function_file_contents = fileread(bucc_search+"/equilibrium_coefficient_functions.json");
                     json_function_file_contents = jsondecode(raw_function_file_contents);
                     self.function_handle = str2func(json_function_file_contents.(name));
                 catch
@@ -97,8 +99,17 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
             self.value = self.value*self.scaled_correction;
         end
         function calculate(self)
-            ionic_strength = (19.924*self.conditions.salinity)/(1000-1.005*self.conditions.salinity);
-            self.value = exp(self.function_handle(self.function_coefficients,self.conditions.temperature+273.15,self.conditions.salinity,ionic_strength));
+            for self_index = 1:numel(self)
+                if isempty(self(self_index).MyAMI)
+                    self(self_index).MyAMI = MyAMI.MyAMI("Precalculated",true);
+                end
+                mgca_unit_normalisation = 10^self(self_index).conditions.mgca_units_value;
+                self(self_index).MyAMI.calculate(self(self_index).conditions.temperature,self(self_index).conditions.salinity,self(self_index).conditions.calcium/mgca_unit_normalisation,self(self_index).conditions.magnesium/mgca_unit_normalisation);
+%                 self(self_index).function_coefficients = self(self_index).MyAMI.results(self(self_index).name);
+
+                self(self_index).value = self(self_index).MyAMI.results(self(self_index).name);
+                self(self_index).doPressureCorrection();
+            end
         end
     end
 end

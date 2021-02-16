@@ -34,12 +34,4 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
             end
         end
     end
-    methods (Static=true)
-        function output = create(number)
-            output(number) = BuCC.d11BCO2();
-            for index = 1:number
-                output(index) = BuCC.d11BCO2();
-            end
-        end
-    end
 end

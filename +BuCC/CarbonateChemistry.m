@@ -366,7 +366,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                     %                     self(self_index).calculate_CO2();
                     self(self_index).saturation_state = ((calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
                     self(self_index).pH.value = pH;
-                elseif ~isnan(self.co2) && ~isnan(self.co3)
+                elseif ~isnan(self(self_index).co2) && ~isnan(self(self_index).co3)
                     self(self_index).estimate_units("co3","co2");
                     unit_normalisation = 10^self(self_index).units_value;
                     
@@ -384,7 +384,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                     
                     dic = co2*(1.+k1/pH+k1*k2/pH/pH);
                     hco3 = dic/(1+pH/k1+k2/pH);
-                    alkalinity = co2*(k1/pH+2.*k1*k2/pH/pH)+kb*self.boron/(kb+pH)+kw/pH-pH;
+                    alkalinity = co2*(k1/pH+2.*k1*k2/pH/pH)+kb*self(self_index).boron/(kb+pH)+kw/pH-pH;
                     
                     self(self_index).dic = dic*unit_normalisation;
                     self(self_index).alkalinity = alkalinity*unit_normalisation;
