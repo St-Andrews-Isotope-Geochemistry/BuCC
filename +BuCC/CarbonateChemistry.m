@@ -206,16 +206,21 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             k0 = self.equilibrium_coefficients.k0.value;
             unit_normalisation = 10^self.units_value;
             
-            if isnan(self.co2) && ~isnan(self.atmospheric_co2_partial_pressure)
-                self.co2 = self.atmospheric_co2_partial_pressure*k0;
+            atmospheric_co2 = self.atmospheric_co2_partial_pressure/unit_normalisation;
+            ocean_co2 = self.co2/unit_normalisation;
+            
+            if isnan(ocean_co2) && ~isnan(atmospheric_co2)
+                ocean_co2 = atmospheric_co2*k0;
             elseif ~isnan(self.co2) && isnan(self.atmospheric_co2_partial_pressure)
-                self.atmospheric_co2_partial_pressure = ((self.co2/unit_normalisation)/k0);
-            elseif isnan(self.co2) && isnan(self.atmospheric_co2_partial_pressure)
-                atmospheric_co2_partial_pressure = self.co2/k0;
-                if atmospheric_co2_partial_pressure~=self.atmospheric_co2_partial_pressure && ~isnan(atmospheric_co2_partial_pressure);
+                atmospheric_co2 = (ocean_co2/k0);
+            elseif ~isnan(self.co2) && ~isnan(self.atmospheric_co2_partial_pressure)
+                atmospheric_co2_guess = ocean_co2/k0;
+                if atmospheric_co2_guess~=atmosheric_co2
                     error("Inconsistent ocean CO2 and atmospheric CO2");
                 end
             end
+            self.co2 = ocean_co2*unit_normalisation;
+            self.atmospheric_co2_partial_pressure = atmospheric_co2*unit_normalisation;
         end
         function calculate(self)
             for self_index=1:numel(self)                
