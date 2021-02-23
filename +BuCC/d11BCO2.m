@@ -6,7 +6,7 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
     end
     methods
         % Constructor
-        function self = d11BCO2()            
+        function self = d11BCO2()
             self.species_calibration = BuCC.BoronSpeciesCalibration("polynomial",[1,0]);
             self.boron = BuCC.BoronpH();
             self.carbonate_chemistry = BuCC.CarbonateChemistry();

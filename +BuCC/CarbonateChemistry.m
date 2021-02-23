@@ -142,29 +142,25 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         function estimate_units(self,parameter_1,parameter_2)
             if ~self.units_set
                 units_char = char(self.units);
+                typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3","atmospheric_co2_partial_pressure"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6,300e-6]);
                 if units_char(1)=="x"
-                    typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
-
-                    typical_order_of_magnitude = 3*round(floor(log10(typical_values_map(parameter_1)))/3,0);
+                    
+                    typical_order_of_magnitude = 3*round(floor(log10(typical_values_map(lower(parameter_1))))/3,0);
                     input_order_of_magnitude = 3*round(floor(log10(self.(parameter_1)))/3,0);
                     difference_order_of_magnitude = input_order_of_magnitude-typical_order_of_magnitude;
                     self.units_value = difference_order_of_magnitude;
 
-                    if difference_order_of_magnitude==6;
+                    if difference_order_of_magnitude==6
                         units_char(1) = "μ";
-                    elseif difference_order_of_magnitude==3;
+                    elseif difference_order_of_magnitude==3
                         units_char(1) = "m";
-                    elseif difference_order_of_magnitude==0;
+                    elseif difference_order_of_magnitude==0
                         units_char(1) = " ";
                     end
                     self.units = units_char;
                 end
 
-                if nargin==3
-                    units_char = char(self.units);
-
-                    typical_values_map = containers.Map(["dic","alkalinity","co2","hco3","co3"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6]);
-
+                if nargin==3                    
                     typical_order_of_magnitude = 3*round(floor(log10(typical_values_map(parameter_2)))/3,0);
                     input_order_of_magnitude = 3*round(floor(log10(self.(parameter_2)))/3,0);
                     difference_order_of_magnitude = input_order_of_magnitude-typical_order_of_magnitude;
@@ -203,27 +199,36 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         end
         
         function calculate_CO2(self)
-            k0 = self.equilibrium_coefficients.k0.value;
-            unit_normalisation = 10^self.units_value;
-            
-            atmospheric_co2 = self.atmospheric_co2_partial_pressure/unit_normalisation;
-            ocean_co2 = self.co2/unit_normalisation;
-            
-            if isnan(ocean_co2) && ~isnan(atmospheric_co2)
-                ocean_co2 = atmospheric_co2*k0;
-            elseif ~isnan(self.co2) && isnan(self.atmospheric_co2_partial_pressure)
-                atmospheric_co2 = (ocean_co2/k0);
-            elseif ~isnan(self.co2) && ~isnan(self.atmospheric_co2_partial_pressure)
-                atmospheric_co2_guess = ocean_co2/k0;
-                if atmospheric_co2_guess~=atmosheric_co2
-                    error("Inconsistent ocean CO2 and atmospheric CO2");
+            for self_index=1:numel(self)
+                if ~isnan(self(self_index).atmospheric_co2_partial_pressure)
+                    self(self_index).estimate_units("atmospheric_co2_partial_pressure");
+                elseif ~isnan(self(self_index).co2)
+                    self(self_index).estimate_units("atmospheric_co2_partial_pressure");
                 end
+                
+                
+                k0 = self(self_index).equilibrium_coefficients.k0.value;
+                unit_normalisation = 10^self(self_index).units_value;
+                
+                atmospheric_co2 = self(self_index).atmospheric_co2_partial_pressure/unit_normalisation;
+                ocean_co2 = self(self_index).co2/unit_normalisation;
+                
+                if isnan(ocean_co2) && ~isnan(atmospheric_co2)
+                    ocean_co2 = atmospheric_co2*k0;
+                elseif ~isnan(self(self_index).co2) && isnan(self(self_index).atmospheric_co2_partial_pressure)
+                    atmospheric_co2 = (ocean_co2/k0);
+                elseif ~isnan(self(self_index).co2) && ~isnan(self(self_index).atmospheric_co2_partial_pressure)
+                    atmospheric_co2_guess = ocean_co2/k0;
+                    if atmospheric_co2_guess~=atmospheric_co2
+                        error("Inconsistent ocean CO2 and atmospheric CO2");
+                    end
+                end
+                self(self_index).co2 = ocean_co2*unit_normalisation;
+                self(self_index).atmospheric_co2_partial_pressure = atmospheric_co2*unit_normalisation;
             end
-            self.co2 = ocean_co2*unit_normalisation;
-            self.atmospheric_co2_partial_pressure = atmospheric_co2*unit_normalisation;
         end
         function calculate(self)
-            for self_index=1:numel(self)                
+            for self_index=1:numel(self)
                 mgca_unit_normalisation = 10^self(self_index).conditions.mgca_units_value;
                 calcium = self(self_index).calcium/mgca_unit_normalisation;
                 magnesium = self(self_index).magnesium/mgca_unit_normalisation;
