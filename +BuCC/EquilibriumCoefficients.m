@@ -202,51 +202,44 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         
         function calculate(self)
             if ~self.calculated
-%                 if ~isempty(BuCC_search)
-%                     MyAMI_relative = strrep(strrep(join([BuCC_search(1).path,"\+MyAMI"],""),current_directory,"."),"\","/");
-% 
-                    mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
-%                     [k_values,~] = self.run_MyAMI(MyAMI_relative,self.temperature,self.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
-
-                    if isempty(self.MyAMI)
-                        self.MyAMI = MyAMI.MyAMI("Precalculated",true);
-                    end                        
-                    self.MyAMI.calculate(self.conditions.temperature,self.conditions.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
-                    k_values = self.MyAMI.results;
-                    
-                    self.k0.value = k_values("k0");
-                    self.k1.value = k_values("k1");
-                    self.k2.value = k_values("k2");
-                    self.kw.value = k_values("kw");
-                    self.kb.value = k_values("kb");
-                    self.kc.value = k_values("kc");
-                    self.ka.value = k_values("ka");
-                    self.ks.value = k_values("ks");
-
-                    self.kf.value = 0.001764409566690456265466990793;
-                    self.kf.doPressureCorrection();
-
-                    self.ks.doPressureCorrection();
-
-                    tb = 1+self.ks.correction+self.ks.value/self.sulphate+(self.sulphate*self.ks.correction)/self.ks.value;
-                    t = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate)*self.kf.correction + self.kf.correction);
-                    b = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate) + self.ks.correction);
-
-                    scale_correction = (tb+t)/(tb+b);
-
-                    self.kw.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.k1.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.k2.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.kc.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.kb.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.ka.doScaleCorrectedPressureCorrection(scale_correction);
-                    self.k0.doScaleCorrectedPressureCorrection(scale_correction);
-
-                    self.calculated = true;
-                else
-                    error("Can't find MyAMI");
+                mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
+                
+                if isempty(self.MyAMI)
+                    self.MyAMI = MyAMI.MyAMI("Precalculated",true);
                 end
-%             end
+                self.MyAMI.calculate(self.conditions.temperature,self.conditions.salinity,self.calcium/mgca_unit_normalisation,self.magnesium/mgca_unit_normalisation);
+                k_values = self.MyAMI.results;
+                
+                self.k0.value = k_values("k0");
+                self.k1.value = k_values("k1");
+                self.k2.value = k_values("k2");
+                self.kw.value = k_values("kw");
+                self.kb.value = k_values("kb");
+                self.kc.value = k_values("kc");
+                self.ka.value = k_values("ka");
+                self.ks.value = k_values("ks");
+                
+                self.kf.value = 0.001764409566690456265466990793;
+                self.kf.doPressureCorrection();
+                
+                self.ks.doPressureCorrection();
+                
+                tb = 1+self.ks.correction+self.ks.value/self.sulphate+(self.sulphate*self.ks.correction)/self.ks.value;
+                t = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate)*self.kf.correction + self.kf.correction);
+                b = (self.fluoride/self.kf.value)*((self.ks.value/self.sulphate) + self.ks.correction);
+                
+                scale_correction = (tb+t)/(tb+b);
+                
+                self.kw.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k1.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k2.doScaleCorrectedPressureCorrection(scale_correction);
+                self.kc.doScaleCorrectedPressureCorrection(scale_correction);
+                self.kb.doScaleCorrectedPressureCorrection(scale_correction);
+                self.ka.doScaleCorrectedPressureCorrection(scale_correction);
+                self.k0.doScaleCorrectedPressureCorrection(scale_correction);
+                
+                self.calculated = true;
+            end
         end
     end
     methods (Static)

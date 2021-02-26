@@ -2,12 +2,16 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
     properties
         temperature = NaN;
         salinity = NaN;
-        pressure = NaN;
+        oceanic_pressure = NaN;
         calcium = NaN;
         magnesium = NaN;
+        atmospheric_pressure = NaN;
         
+        gas_constant = 8.314510;        
         
         mgca_units = "xmol/kg";
+    end
+    properties (Hidden=true)
         mgca_units_value = NaN;
         mgca_units_set = false;
     end
@@ -15,7 +19,7 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
         function self = Conditions(varargin)
             parser = inputParser;
             parser.KeepUnmatched = true;
-            properties = ["temperature","salinity","pressure","calcium","magnesium"];
+            properties = ["temperature","salinity","oceanic_pressure","calcium","magnesium","atmospheric_pressure"];
             
             for property = properties
                 addOptional(parser,property,NaN);

@@ -10,7 +10,7 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
         function_handle = NaN;
         function_coefficients = NaN;
         
-        R_gas = 8.314510;        % J mol-1 deg-1 (perfect Gas)  
+%         R_gas = 8.314510;        % J mol-1 deg-1 (perfect Gas)  
         R_P = 83.14472;             % mol bar deg-1 
     end
     properties (Dependent=true)
@@ -76,7 +76,7 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
             output = self.conditions.salinity;
         end
         function output = get.pressure(self)
-            output = self.conditions.pressure;
+            output = self.conditions.oceanic_pressure;
         end
         function output = get.calcium(self)
             output = self.conditions.calcium;
