@@ -28,7 +28,14 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
             parse(parser,varargin{:});
             
             for property = properties
-                if ~isempty(parser.Results.(property)) && ~isnan(parser.Results.(property))
+%                 self.temperature = parser.Results.temperature;
+%                 self.salinity = parser.Results.salinity;
+%                 self.oceanic_pressure = parser.Results.oceanic_pressure;
+%                 self.calcium = parser.Results.calcium;
+%                 self.magnesium = parser.Results.magnesium;
+%                 self.atmospheric_pressure = parser.Results.atmospheric_pressure;
+                
+                if ~isnan(parser.Results.(property))
                     self.(property) = parser.Results.(property);
                 end
             end
@@ -42,7 +49,9 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
         end
         function set.magnesium(self,value)
             self.magnesium = value;
-            self.estimate_units("magnesium");
+            if ~self.mgca_units_set
+                self.estimate_units("magnesium");
+            end
         end
         function set.mgca_units(self,value)
             self.mgca_units = value;
