@@ -156,7 +156,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         end
         
         % Units
-        function getUnitsValue(self)
+        function self = getUnitsValue(self)
             asChar = char(self.units);
             if asChar(1)=="m"
                 self.units_value = 3;
@@ -168,7 +168,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 self.units_value = NaN;
             end            
         end
-        function estimateUnits(self,parameter_1,parameter_2)
+        function self = estimateUnits(self,parameter_1,parameter_2)
             if ~self.units_set
                 units_char = char(self.units);
                 typical_values_map = containers.Map(["dic","alkalinity","oceanic_co2","hco3","co3","atmospheric_co2"],[2000e-6,2300e-6,10e-6,1800e-6,200e-6,300e-6]);
@@ -210,10 +210,10 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         end
         
         % Calculations
-        function calculateBoronFromSalinity(self)
+        function self = calculateBoronFromSalinity(self)
             self.boron = (0.0002414/10.811)*(self.salinity/1.80655);
         end
-        function calculate_CO2(self)
+        function self = calculate_CO2(self)
             for self_index=1:numel(self)
                 if ~isnan(self(self_index).atmospheric_co2)
                     self(self_index).estimateUnits("atmospheric_co2");
@@ -242,7 +242,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 self(self_index).atmospheric_co2.partial_pressure = atmospheric_co2*unit_normalisation;
             end
         end
-        function calculate(self)
+        function self = calculate(self)
             for self_index=1:numel(self)
                 mgca_unit_normalisation = 10^self(self_index).conditions.mgca_units_value;
                 calcium = self(self_index).calcium/mgca_unit_normalisation;

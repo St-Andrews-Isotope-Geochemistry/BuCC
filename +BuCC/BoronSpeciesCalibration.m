@@ -30,14 +30,15 @@ classdef BoronSpeciesCalibration < handle&Geochemistry_Helpers.Collator
             end
         end
         
-        function output = calculate(self)            
-            if self.form=="polynomial" || self.form=="linear"
-                output = 0;
-                for index = 1:numel(self.coefficients)
-                    output = output+self.coefficients(index)*self.d11B_measured.value^(numel(self.coefficients)-index);
+        function output = calculate(self)
+            for self_index = 1:numel(self)
+                if self(self_index).form=="polynomial" || self(self_index).form=="linear"
+                    output = 0;
+                    for index = 1:numel(self(self_index).coefficients)
+                        output = output+self(self_index).coefficients(index)*self(self_index).d11B_measured.value^(numel(self(self_index).coefficients)-index);
+                    end                    
+                    self(self_index).d11B_4.value = output;
                 end
-                
-                self.d11B_4.value = output;
             end
         end
         function assign(self,form,coefficients)

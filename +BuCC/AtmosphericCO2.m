@@ -115,7 +115,7 @@ classdef AtmosphericCO2 < handle&Geochemistry_Helpers.Collator
             end            
         end
         
-        function calculate(self)
+        function self = calculate(self)
             if ~isnan(self)
                 temperature = self.conditions.temperature + 273.15;
                 salinity = self.conditions.salinity;

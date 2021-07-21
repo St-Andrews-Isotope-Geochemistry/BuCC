@@ -85,20 +85,20 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
             output = self.conditions.magnesium;
         end
         
-        function doPressureCorrection(self)
+        function self = doPressureCorrection(self)
             deltaV = self.pressure_correction(1) + self.pressure_correction(2)*self.temperature + self.pressure_correction(3)*self.temperature^2;
             deltaK = self.pressure_correction(4) + self.pressure_correction(5)*self.temperature;
             self.correction = exp(-(deltaV./(self.R_P*(self.temperature+273.15)))*self.pressure + (0.5*deltaK/(self.R_P*(self.temperature+273.15)))*self.pressure^2);
             self.value = self.value*self.correction;
         end
-        function doScaleCorrectedPressureCorrection(self,scale_correction)
+        function self = doScaleCorrectedPressureCorrection(self,scale_correction)
             deltaV = self.pressure_correction(1) + self.pressure_correction(2)*self.temperature + self.pressure_correction(3)*self.temperature^2;
             deltaK = self.pressure_correction(4) + self.pressure_correction(5)*self.temperature;
             self.correction = exp(-(deltaV./(self.R_P*(self.temperature+273.15)))*self.pressure + (0.5*deltaK/(self.R_P*(self.temperature+273.15)))*self.pressure^2);
             self.scaled_correction = self.correction*scale_correction;
             self.value = self.value*self.scaled_correction;
         end
-        function calculate(self)
+        function self = calculate(self)
             for self_index = 1:numel(self)
                 if isempty(self(self_index).MyAMI)
                     self(self_index).MyAMI = MyAMI.MyAMI("Precalculated",true);

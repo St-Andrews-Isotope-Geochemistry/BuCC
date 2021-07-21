@@ -17,7 +17,7 @@ classdef d11BCO2 < handle&Geochemistry_Helpers.Collator
             self.boron.pH = self.carbonate_chemistry.pH; 
         end
         
-        function calculate(self)
+        function self = calculate(self)
             for self_index = 1:numel(self)
                 self(self_index).species_calibration.calculate();
                 self(self_index).carbonate_chemistry.equilibrium_coefficients.calculate();
