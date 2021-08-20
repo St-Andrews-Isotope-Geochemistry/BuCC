@@ -16,29 +16,7 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
         mgca_units_set = false;
     end
     methods
-        function self = Conditions(varargin)
-            parser = inputParser;
-            parser.KeepUnmatched = true;
-            properties = ["temperature","salinity","oceanic_pressure","calcium","magnesium","atmospheric_pressure"];
-            
-            for property = properties
-                addOptional(parser,property,NaN);
-            end
-            
-            parse(parser,varargin{:});
-            
-            for property = properties
-%                 self.temperature = parser.Results.temperature;
-%                 self.salinity = parser.Results.salinity;
-%                 self.oceanic_pressure = parser.Results.oceanic_pressure;
-%                 self.calcium = parser.Results.calcium;
-%                 self.magnesium = parser.Results.magnesium;
-%                 self.atmospheric_pressure = parser.Results.atmospheric_pressure;
-                
-                if ~isnan(parser.Results.(property))
-                    self.(property) = parser.Results.(property);
-                end
-            end
+        function self = Conditions()
         end
         
         function set.calcium(self,value)
