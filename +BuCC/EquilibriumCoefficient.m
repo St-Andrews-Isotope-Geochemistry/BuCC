@@ -22,33 +22,38 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
     end
     properties (Hidden=true)
         value_no_pressure_correction = NaN;
+        valid_file_found = false;
     end
     methods
         % Constructor
-        function self = EquilibriumCoefficient(name);
-            self.conditions = BuCC.Conditions();
+        function self = EquilibriumCoefficient(name,container_flag)
             if nargin>0
                 self.name = name;
+            end
+            if nargin<2
+                container_flag = 0;
+            end
+            if ~container_flag
+                self.conditions = BuCC.Conditions();
                 try
-                    bucc_search = what("+Bucc");
-                    current_directory = pwd;
-                    bucc_search = strrep(strrep(join([bucc_search(1).path,"\Configuration"],""),current_directory,"."),"\","/");
-                    
-                    raw_pressure_file_contents = fileread(bucc_search+"/equilibrium_coefficient_pressure_correction.json");
-                    json_pressure_file_contents = jsondecode(raw_pressure_file_contents);
-                    valid_json_file_found = 1;
-                    
-                    self.pressure_correction = json_pressure_file_contents.(name);
-                    
-                    raw_function_file_contents = fileread(bucc_search+"/equilibrium_coefficient_functions.json");
-                    json_function_file_contents = jsondecode(raw_function_file_contents);
-                    self.function_handle = str2func(json_function_file_contents.(name));
+                    if self.valid_file_found
+                        json_pressure = jsondecode(fileread("equilibrium_coefficient_pressure_correction.json"));
+                        json_function = jsondecode(fileread("equilibrium_coefficient_functions.json"));
+                        
+                        self.parsePressureCorrectionAndFunctions(json_pressure,json_function);
+                        
+                        self.valid_file_found = true;
+                    end
                 catch
                     valid_json_file_found = 0;
                     self.pressure_correction = [NaN,NaN,NaN,NaN,NaN];
                     self.function_handle = NaN;
                 end
             end
+        end
+        function self = parsePressureCorrectionsAndFunctions(self,json_pressure,json_function)            
+            self.pressure_correction = json_pressure.(self.name);
+            self.function_handle = str2func(json_function.(self.name));
         end
         
         % Setters

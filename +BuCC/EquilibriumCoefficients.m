@@ -31,28 +31,36 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
     properties (Hidden=true)
         property_names = ["k0","k1","k2","kb","kw","kc","ka","ks","kp1","kp2","kp3","kf"];
         calculated = false;
+        valid_file_found = 0;
     end
     methods
         % Constructor
-        function self = EquilibriumCoefficients()
+        function self = EquilibriumCoefficients(contained_flag)
+            if nargin<1
+                contained_flag = 0;
+            end
+            
+            self.k0 = BuCC.EquilibriumCoefficient("k0",true);
+            self.k1 = BuCC.EquilibriumCoefficient("k1",true);
+            self.k2 = BuCC.EquilibriumCoefficient("k2",true);
+            self.kb = BuCC.EquilibriumCoefficient("kb",true);
+            self.kw = BuCC.EquilibriumCoefficient("kw",true);
+            self.kc = BuCC.EquilibriumCoefficient("kc",true);
+            self.ka = BuCC.EquilibriumCoefficient("ka",true);
+            self.ks = BuCC.EquilibriumCoefficient("ks",true);
+            self.kf = BuCC.EquilibriumCoefficient("kf",true);
+            
+            self.kp1 = BuCC.EquilibriumCoefficient("kp1",true);
+            self.kp2 = BuCC.EquilibriumCoefficient("kp2",true);
+            self.kp3 = BuCC.EquilibriumCoefficient("kp3",true);
+            
+            
             self.conditions = BuCC.Conditions();
-            
-            self.k0 = BuCC.EquilibriumCoefficient();
-            self.k1 = BuCC.EquilibriumCoefficient();
-            self.k2 = BuCC.EquilibriumCoefficient();
-            self.kb = BuCC.EquilibriumCoefficient();
-            self.kw = BuCC.EquilibriumCoefficient();
-            self.kc = BuCC.EquilibriumCoefficient();
-            self.ka = BuCC.EquilibriumCoefficient();
-            self.ks = BuCC.EquilibriumCoefficient();
-            self.kf = BuCC.EquilibriumCoefficient();
-            
-            self.kp1 = BuCC.EquilibriumCoefficient();
-            self.kp2 = BuCC.EquilibriumCoefficient();
-            self.kp3 = BuCC.EquilibriumCoefficient();
-            
-            self.set_pressure_correction();
             self.setAll("conditions",self.conditions);
+            
+            if ~contained_flag
+                self.set_pressure_correction();
+            end
         end
         
         % Getters
@@ -95,21 +103,17 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         
         function set_pressure_correction(self)
             try
-                bucc_search = what("+Bucc");
-                current_directory = pwd;
-                bucc_search = strrep(strrep(join([bucc_search(1).path,"\Configuration"],""),current_directory,"."),"\","/");
-            
-                
-                raw_file_contents = fileread(bucc_search+"/equilibrium_coefficient_pressure_correction.json");
-                json_file_contents = jsondecode(raw_file_contents);
-                valid_json_file_found = 1;
+                json_pressure = jsondecode(fileread("equilibrium_coefficient_pressure_correction.json"));
+                json_function = jsondecode(fileread("equilibrium_coefficient_functions.json"));
+                                                   
+                self.valid_file_found = true;
             catch
-                valid_json_file_found = 0;
+                self.valid_file_found = 0;
             end
             
-            if valid_json_file_found==1
+            if self.valid_file_found==1
                 for property_index = 1:numel(self.property_names)
-                    self.(self.property_names(property_index)).pressure_correction = json_file_contents.(self.property_names(property_index));
+                    self.(self.property_names(property_index)).parsePressureCorrectionsAndFunctions(json_pressure,json_function);
                 end
             else
                 for property_index = 1:numel(self.property_names)
@@ -200,7 +204,7 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
             end
         end
         
-        function calculate(self)
+        function self = calculate(self)
             if ~self.calculated
                 mgca_unit_normalisation = 10^self.conditions.mgca_units_value;
                 
@@ -243,7 +247,7 @@ classdef EquilibriumCoefficients < handle&Geochemistry_Helpers.Collator
         end
     end
     methods (Static)
-        function [k_values,k_values_correction] = run_MyAMI(MyAMI_path,temperature,salinity,calcium,magnesium);
+        function [k_values,k_values_correction] = run_MyAMI(MyAMI_path,temperature,salinity,calcium,magnesium)
             command = join(["python ",MyAMI_path,"/PITZER.py ",temperature," ",salinity," ",calcium," ",magnesium],"");
             [status,result] = system(command);
             if status==0
