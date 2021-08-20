@@ -33,11 +33,21 @@ classdef BoronSpeciesCalibration < handle&Geochemistry_Helpers.Collator
         function output = calculate(self)
             for self_index = 1:numel(self)
                 if self(self_index).form=="polynomial" || self(self_index).form=="linear"
-                    output = 0;
-                    for index = 1:numel(self(self_index).coefficients)
-                        output = output+self(self_index).coefficients(index)*self(self_index).d11B_measured.value^(numel(self(self_index).coefficients)-index);
-                    end                    
-                    self(self_index).d11B_4.value = output;
+                    if isnan(self(self_index).d11B_4.value)
+                        if self(self_index).form=="polynomial"
+                            assert(numel(self(self_index).coefficients)==2,"Must be linear to be invertible");
+                        end
+                        output = (self(self_index).d11B_measured.value-self(self_index).coefficients(2))./self(self_index).coefficients(1);
+                        self(self_index).d11B_4.value = output;
+                    elseif isnan(self(self_index).d11B_measured.value)                        
+                        output = 0;
+                        for index = 1:numel(self(self_index).coefficients)
+                            output = output+self(self_index).coefficients(index)*self(self_index).d11B_4.value^(numel(self(self_index).coefficients)-index);
+                        end
+                        self(self_index).d11B_measured.value = output;
+                    else
+                        error("Species calibration issue");
+                    end
                 end
             end
         end
