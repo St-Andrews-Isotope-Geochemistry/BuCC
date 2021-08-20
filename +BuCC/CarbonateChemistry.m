@@ -50,7 +50,14 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 self.conditions = BuCC.Conditions(varargin{:});
             end
             
-            self.equilibrium_coefficients = BuCC.EquilibriumCoefficients();
+            self.equilibrium_coefficients = BuCC.EquilibriumCoefficients(true);
+            json_pressure = jsondecode(fileread("equilibrium_coefficient_pressure_correction.json"));
+            json_function = jsondecode(fileread("equilibrium_coefficient_functions.json"));
+            for property_name = self.equilibrium_coefficients.property_names
+                self.equilibrium_coefficients.(property_name).parsePressureCorrectionsAndFunctions(json_pressure,json_function);
+            end
+
+            self.equilibrium_coefficients.valid_file_found = true;
             self.equilibrium_coefficients.conditions = self.conditions;
             
             self.atmospheric_co2 = BuCC.AtmosphericCO2();
@@ -218,7 +225,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                 if ~isnan(self(self_index).atmospheric_co2)
                     self(self_index).estimateUnits("atmospheric_co2");
                 elseif ~isnan(self(self_index).oceanic_co2)
-                    self(self_index).estimateUnits("atmospheric_co2");
+                    self(self_index).estimateUnits("oceanic_co2");
                 end
                 
                 
@@ -234,7 +241,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                     atmospheric_co2 = (ocean_co2/k0);
                 elseif ~isnan(self(self_index).oceanic_co2) && ~isnan(self(self_index).atmospheric_co2)
                     atmospheric_co2_guess = ocean_co2/k0;
-                    if atmospheric_co2_guess~=atmospheric_co2
+                    if abs(atmospheric_co2_guess-atmospheric_co2)>1e-12
                         error("Inconsistent ocean CO2 and atmospheric CO2");
                     end
                 end
