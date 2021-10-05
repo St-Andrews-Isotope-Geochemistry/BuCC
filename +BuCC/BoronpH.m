@@ -85,7 +85,8 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
              value = 1+(self.epsilon/1000);
         end
         function value = get.d11B_3(self)
-            value = Geochemistry_Helpers.delta("B",self.d11B_4.value+self.epsilon);
+            value = Geochemistry_Helpers.delta("B",NaN);
+            value.ratio = self.d11B_4.ratio.*self.alpha;
         end
         function value = get.calculable(self)
             self.check_known_values();
@@ -175,12 +176,12 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
                 simple = 0;
             end
             for index = 1:numel(self)
-%                 self(index).pKb.calculate();
+                self(index).pKb.calculate();
                 self(index).check_known_values();
                 if self(index).validated==1
                     if isnan(self(index).d11B_4.value)
                         if simple
-                            self(index).calculate_d11B4_simple();
+                            self(index).calculate_d11B4_FifthElement();
                         else
                             self(index).calculate_d11B4();
                         end
@@ -213,6 +214,34 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
                     end
                 end
             end
+        end
+        
+        %
+        function setConditions(self,conditions)
+            self.pKb.conditions.temperature = conditions.temperature;
+            self.pKb.conditions.salinity = conditions.salinity;
+            self.pKb.conditions.oceanic_pressure = conditions.oceanic_pressure;
+            self.pKb.conditions.calcium = conditions.calcium;
+            self.pKb.conditions.magnesium = conditions.magnesium;
+            
+            self.pKb.conditions.atmospheric_pressure = conditions.atmospheric_pressure;
+        end
+        function output = bjerrum(self,pH_range)
+            assert(numel(self)==1,"Bjerrum must start from a single instance");
+            output = self.create(numel(pH_range));
+            
+            output.collate("pH").assignToEach("pValue",pH_range);
+            output.collate("d11B_sw").assignToAll("value",self.d11B_sw.value);
+            output.assignToAll("epsilon",self.epsilon);            
+            for output_index = 1:numel(output)
+                output(output_index).setConditions(self.pKb.conditions);
+            end
+            
+            output.collate("pKb").assignToAll("MyAMI",self.pKb.MyAMI);
+            
+%             output.assignToAll("is_bjerrum",true);
+            
+            output.calculate();
         end
     end
 end
