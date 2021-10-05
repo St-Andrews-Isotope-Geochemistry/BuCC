@@ -64,7 +64,7 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
             self.conditions.salinity = value;
         end
         function set.pressure(self,value)
-            self.conditions.pressure = value;
+            self.conditions.oceanic_pressure = value;
         end
         function set.calcium(self,value)
             self.conditions.calcium = value;

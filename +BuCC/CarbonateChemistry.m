@@ -11,6 +11,8 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         atmospheric_co2 = NaN;
         
         boron = NaN
+        borate = NaN;
+        boric = NaN;
         
         saturation_state = NaN;
         
@@ -29,6 +31,9 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
         calcium
         magnesium
         calculable
+    end
+    properties (Hidden=true)
+        is_bjerrum = false;
     end
     methods
         % Constructor
@@ -425,11 +430,81 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
                     self(self_index).co3 = co3*unit_normalisation;
                     self(self_index).saturation_state = ((calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
                     self(self_index).pH.value = pH;
+                elseif ~isnan(self(self_index).dic) && ~isnan(self(self_index).alkalinity)
+                    self(self_index).estimateUnits("dic");
+                    unit_normalisation = 10^self(self_index).units_value;
+                    
+                    dic = self(self_index).dic/unit_normalisation;
+                    alkalinity = self(self_index).alkalinity/unit_normalisation;
+                    
+                    p5 = -1.;
+                    p4 = -alkalinity-kb-k1;
+                    p3 = (dic*k1)-(alkalinity*(kb+k1))+(kb*self(self_index).boron)+kw-(kb*k1)-(k1*k2);
+                    p2 = (dic*(kb*k1+(2*k1*k2))-alkalinity*((kb*k1)+(k1*k2))+(kb*self(self_index).boron*k1))+((kw*kb)+(kw*k1)-(kb*k1*k2));
+                    p1 = ((2*dic*kb*k1*k2)-(alkalinity*kb*k1*k2)+(kb*self(self_index).boron*k1*k2))+((kw*kb*k1)+(kw*k1*k2));
+                    p0 = kw*kb*k1*k2;
+                    p = [p5,p4,p3,p2,p1,p0];
+                    r = roots(p);
+                    pH = max(real(r));
+                    
+                    oceanic_co2 = (alkalinity-((kb*self(self_index).boron)/(kb+pH))-(kw/pH)+pH)/((k1/pH)+2*((k1*k2)/pH^2));
+                    hco3 = dic/(1+(pH/k1)+(k2/pH));
+                    co3 = dic/(1+(pH/k2)+((pH^2)/(k1*k2)));
+                    
+                    self(self_index).oceanic_co2 = oceanic_co2*unit_normalisation;
+                    self(self_index).hco3 = hco3*unit_normalisation;
+                    self(self_index).co3 = co3*unit_normalisation;
+                    self(self_index).saturation_state = ((calcium*co3)/self(self_index).equilibrium_coefficients.kc.value);
+                    self(self_index).pH.value = pH;
                 else
                     error("Not implemented yet");
                 end
+                self(self_index).calculateBoron();
+                
                 self(self_index).atmospheric_co2.calculate();
             end
+        end
+        
+        function self = calculateBoron(self)
+            for self_index = 1:numel(self)
+                if isnan(self(self_index).boron)
+                    self(self_index).boron = 1;
+                end
+                self(self_index).borate = self(self_index).boron/(1+self(self_index).pH.value/self(self_index).equilibrium_coefficients.kb.value);
+                self(self_index).boric = self(self_index).boron-self(self_index).borate;
+            end
+        end
+        
+        function output = bjerrum(self,pH_range)
+            assert(numel(self)==1,"Bjerrum must start from a single instance");
+            output = self.create(numel(pH_range));
+            
+            output.collate("pH").assignToEach("pValue",pH_range);
+            output.assignToAll("dic",self.dic);
+            output.assignToAll("alkalinity",self.alkalinity);
+            output.assignToAll("oceanic_co2",self.oceanic_co2);
+            output.assignToAll("hco3",self.hco3);
+            output.assignToAll("co3",self.co3);
+            output.assignToAll("saturation_state",self.saturation_state);
+            
+            output.collate("atmospheric_co2").assignToAll("fugacity",self.atmospheric_co2.fugacity);
+            output.collate("atmospheric_co2").assignToAll("partial_pressure",self.atmospheric_co2.partial_pressure);
+            output.collate("atmospheric_co2").assignToAll("mole_fraction",self.atmospheric_co2.mole_fraction);
+            
+            output.assignToAll("boron",self.boron);
+            output.assignToAll("borate",self.borate);
+            output.assignToAll("boric",self.boric);
+            
+            for output_index = 1:numel(output)
+                output(output_index).setConditions(self.conditions);
+            end
+            
+%             myami = MyAMI.MyAMI("Precalculated",true);
+            output.collate("equilibrium_coefficients").assignToAll("MyAMI",self.equilibrium_coefficients.MyAMI);
+            
+            output.assignToAll("is_bjerrum",true);
+            
+            output.calculate();            
         end
         
         % Display
@@ -441,6 +516,7 @@ classdef CarbonateChemistry < handle&Geochemistry_Helpers.Collator
             else
                 disp(self.(parameter));
             end
-        end        
+        end    
+        
     end
 end

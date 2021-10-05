@@ -73,5 +73,15 @@ classdef Conditions < handle&Geochemistry_Helpers.Collator
                 self.mgca_units_value = NaN;
             end            
         end
+        function self = assumeModern(self)
+            for self_index = 1:numel(self)
+                self(self_index).temperature = 25;
+                self(self_index).salinity = 35;
+                self(self_index).oceanic_pressure = 0;
+                self(self_index).atmospheric_pressure = 1;
+                self(self_index).calcium = 10;
+                self(self_index).magnesium = 50;
+            end
+        end
     end
 end
