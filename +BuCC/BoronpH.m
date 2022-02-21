@@ -176,7 +176,7 @@ classdef BoronpH<handle&Geochemistry_Helpers.Collator&matlab.mixin.Copyable
                 simple = 0;
             end
             for index = 1:numel(self)
-                self(index).pKb.calculate();
+%                 self(index).pKb.calculate();
                 self(index).check_known_values();
                 if self(index).validated==1
                     if isnan(self(index).d11B_4.value)

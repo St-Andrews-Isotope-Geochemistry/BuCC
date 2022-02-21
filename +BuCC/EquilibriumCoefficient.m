@@ -40,7 +40,7 @@ classdef EquilibriumCoefficient < Geochemistry_Helpers.pX
                         json_pressure = jsondecode(fileread("equilibrium_coefficient_pressure_correction.json"));
                         json_function = jsondecode(fileread("equilibrium_coefficient_functions.json"));
                         
-                        self.parsePressureCorrectionAndFunctions(json_pressure,json_function);
+                        self.parsePressureCorrectionsAndFunctions(json_pressure,json_function);
                         
                         self.valid_file_found = true;
                     end
